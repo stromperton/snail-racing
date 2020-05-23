@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/go-pg/pg/v9"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
@@ -22,7 +23,7 @@ func (s *Snail) GetString() string {
 }
 
 var B *tb.Bot
-
+var db *pg.DB
 var (
 	ReplyMain = &tb.SendOptions{
 		ParseMode: tb.ModeHTML,
@@ -101,8 +102,8 @@ func main() {
 	B.Handle("\fBonyaBet", func(c *tb.Callback) { hBet(c, "bonya") })
 	B.Handle("\fVasyaBet", func(c *tb.Callback) { hBet(c, "vasya") })
 
-	//ConnectDataBase()
-	//defer DB.Close()
+	connectDataBase()
+	defer db.Close()
 
 	B.Start()
 }
@@ -114,7 +115,7 @@ func hStart(m *tb.Message) {
 	p, isNewPlayer := NewDefaultPlayer(m.Sender.ID)
 
 	if isNewPlayer {
-		fmt.Printf("Новый игрок: @%s[%d]\n", m.Sender.Username, m.Sender.ID)
+		fmt.Printf("Новый игрок: @%s[%d]\n", m.Sender.Username, p.ID)
 
 		B.Send(m.Sender, "Стартовое сообщение", ReplyMain)
 	} else {
@@ -176,12 +177,15 @@ func hSnails(c *tb.Callback, snailName string) {
 }
 
 type Player struct {
-	ID string
+	ID         int
+	Address    string
+	PrivateKey string
 }
 
 func NewDefaultPlayer(id int) (Player, bool) {
 	p := &Player{}
-	p.Name = "Жмель"
+	p.ID = id
+	p.Address, p.PrivateKey = CreateWallet()
 
 	res, err := db.Model(p).OnConflict("DO NOTHING").Insert()
 	if err != nil {
@@ -192,4 +196,20 @@ func NewDefaultPlayer(id int) (Player, bool) {
 		return *p, true
 	}
 	return *p, false
+}
+
+//ConnectDataBase Подключение к базе данных
+func connectDataBase() {
+	opt, err := pg.ParseURL(os.Getenv("DATABASE_URL"))
+	if err != nil {
+		panic(err)
+	}
+
+	db = pg.Connect(opt)
+
+	err = CreateSchema(db)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Успешное подключение к базе данных")
 }
