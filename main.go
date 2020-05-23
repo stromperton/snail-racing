@@ -111,8 +111,15 @@ func hStart(m *tb.Message) {
 	if !m.Private() {
 		return
 	}
+	p, isNewPlayer := NewDefaultPlayer(m.Sender.ID)
 
-	B.Send(m.Sender, "Стартовое сообщение", ReplyMain)
+	if isNewPlayer {
+		fmt.Printf("Новый игрок: @%s[%d]\n", m.Sender.Username, m.Sender.ID)
+
+		B.Send(m.Sender, "Стартовое сообщение", ReplyMain)
+	} else {
+		B.Send(m.Sender, "Похоже, что ты уже играешь!", ReplyMain)
+	}
 }
 
 func hText(m *tb.Message) {
@@ -166,4 +173,23 @@ func hBet(c *tb.Callback, snailName string) {
 func hSnails(c *tb.Callback, snailName string) {
 	B.Respond(c)
 	B.Edit(c.Message, GetText(snailName), InlineSnails)
+}
+
+type Player struct {
+	ID string
+}
+
+func NewDefaultPlayer(id int) (Player, bool) {
+	p := &Player{}
+	p.Name = "Жмель"
+
+	res, err := db.Model(p).OnConflict("DO NOTHING").Insert()
+	if err != nil {
+		panic(err)
+	}
+
+	if res.RowsAffected() > 0 {
+		return *p, true
+	}
+	return *p, false
 }
