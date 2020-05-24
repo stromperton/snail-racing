@@ -12,6 +12,7 @@ import (
 )
 
 type Snail struct {
+	Name     string
 	Position int
 	Speed    int
 	Score    int
@@ -25,6 +26,33 @@ func (s *Snail) GetString() string {
 
 	return out
 }
+
+func (s *Snail) Hodik() (bool, bool) {
+	randomka := Random(0, 100)
+
+	if randomka < 20 {
+		s.Adka = Random(1, 10)
+	}
+
+	s.Score += s.Adka
+	//fmt.Println("Скоры "+s.Name+":", gary.Score)
+	if s.Score > maxScore {
+		s.Position++
+		s.Score = 0
+
+		if s.Position == winPos {
+			return true, true
+		}
+
+		return true, false
+	}
+	return false, false
+}
+
+var (
+	maxScore int
+	winPos   int
+)
 
 var B *tb.Bot
 var db *pg.DB
@@ -86,6 +114,9 @@ func main() {
 		err       error
 	)
 
+	maxScore = GetInt("MAX_SCORE")
+	winPos = GetInt("WIN_POS")
+
 	poller := &tb.Webhook{
 		Listen:   ":" + port,
 		Endpoint: &tb.WebhookEndpoint{PublicURL: publicURL},
@@ -138,14 +169,14 @@ func hText(m *tb.Message) {
 
 	if m.Text == "🏁 Гонка" {
 		defPos := 0
-		gery := Snail{Position: defPos, Candy: "🍭"}
+		gary := Snail{Position: defPos, Candy: "🍭"}
 		bonya := Snail{Position: defPos, Candy: "🍓"}
 		vasya := Snail{Position: defPos, Candy: "🍏"}
 
 		message := fmt.Sprintf(GetText("race"), "Ожидание ставки...",
 			`Размер ставки - <b>50 BIP</b>
 <b>Выигрыш - 100 BIP</b>`,
-			gery.GetString(),
+			gary.GetString(),
 			bonya.GetString(),
 			vasya.GetString(),
 		)
@@ -177,81 +208,50 @@ func GetText(fileName string) string {
 	return string(content)
 }
 
-func hBet(c *tb.Callback, snailName string) {
+func hBet(c *tb.Callback, betSnailName string) {
 	B.Respond(c)
 
-	gery := Snail{Adka: Random(1, 10), Candy: "🍭"}
-	bonya := Snail{Adka: Random(1, 10), Candy: "🍓"}
-	vasya := Snail{Adka: Random(1, 10), Candy: "🍏"}
-
-	gery.Speed = Random(60, 200)
-	bonya.Speed = Random(60, 200)
-	vasya.Speed = Random(60, 200)
-
-	fmt.Println("Скорость Гери:", gery.Speed)
-	fmt.Println("Скорость Бони:", bonya.Speed)
-	fmt.Println("Скорость Васи:", vasya.Speed)
-
-	win := false
-	for !win {
-		rSnail := Random(0, 3)
-		var luckySnail *Snail
-		if rSnail == 0 {
-			luckySnail = &gery
-		}
-		if rSnail == 1 {
-			luckySnail = &bonya
-		}
-		if rSnail == 2 {
-			luckySnail = &vasya
-		}
-		randomka := Random(0, 100)
-
-		if randomka < 20 {
-			luckySnail.Adka = Random(1, 10)
-		}
-
-		gery.Score += gery.Adka
-		bonya.Score += bonya.Adka
-		vasya.Score += vasya.Adka
-
-		fmt.Println("Скоры Гери:", gery.Score)
-		fmt.Println("Скоры Бони:", bonya.Score)
-		fmt.Println("Скоры Васи:", vasya.Score)
+	snails := [3]Snail{
+		Snail{Adka: Random(1, 10), Candy: "🍭", Name: "gary"},
+		Snail{Adka: Random(1, 10), Candy: "🍓", Name: "bonya"},
+		Snail{Adka: Random(1, 10), Candy: "🍏", Name: "vasya"},
+	}
+	win := "nil"
+	var winnersArray []string
+	for win == "nil" {
 
 		isUpdateMessage := false
-		if gery.Score > 100 {
-			gery.Position++
-			gery.Score = 0
-			isUpdateMessage = true
-		}
-		if bonya.Score > 100 {
-			bonya.Position++
-			bonya.Score = 0
-			isUpdateMessage = true
-		}
-		if vasya.Score > 100 {
-			vasya.Position++
-			vasya.Score = 0
-			isUpdateMessage = true
+		for _, snail := range snails {
+			isUpdate, winner := snail.Hodik()
+
+			if isUpdate {
+				isUpdateMessage = true
+			}
+			if winner {
+				winnersArray = append(winnersArray, snail.Name)
+			}
 		}
 
-		if gery.Position == 26 || bonya.Position == 26 || vasya.Position == 26 {
-			win = true
+		if len(winnersArray) > 0 {
+			winInd := Random(0, len(winnersArray))
+
+			for i, snailName := range winnersArray {
+				if i == winInd {
+					win = snailName
+				} else {
+					snails[i].Position--
+				}
+			}
 		}
 
 		if isUpdateMessage {
 
 			message := fmt.Sprintf(GetText("race"), "ГОНКА",
 				"",
-				gery.GetString(),
-				bonya.GetString(),
-				vasya.GetString(),
+				snails[0].GetString(),
+				snails[1].GetString(),
+				snails[2].GetString(),
 			)
-
-			fmt.Println("Позиция Гери:", gery.Position)
-			fmt.Println("Позиция Бони:", bonya.Position)
-			fmt.Println("Позиция Васи:", vasya.Position)
 
 			B.Edit(c.Message, message, InlineBet)
 		}

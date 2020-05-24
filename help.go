@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -17,4 +20,13 @@ func UpdateEvery(d time.Duration, f func()) {
 func Random(min, max int) int {
 	rand.Seed(time.Now().Unix())
 	return rand.Intn(max-min) + min
+}
+
+func GetInt(key string) int {
+	num, err := strconv.Atoi(os.Getenv(key))
+	if err != nil {
+		fmt.Println("Проблема с парсом переменной окружения "+key, err)
+	}
+	return num
+
 }
