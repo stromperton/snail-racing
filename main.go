@@ -184,11 +184,19 @@ func hBet(c *tb.Callback, snailName string) {
 	bonya.Speed = Random(85, 100)
 	vasya.Speed = Random(85, 100)
 
+	fmt.Println("Скорость Гери:", gery.Speed)
+	fmt.Println("Скорость Бони:", bonya.Speed)
+	fmt.Println("Скорость Васи:", vasya.Speed)
+
 	win := false
 	for !win {
 		gery.Score += gery.Adka
 		bonya.Score += bonya.Adka
 		vasya.Score += vasya.Adka
+
+		fmt.Println("Скоры Гери:", gery.Score)
+		fmt.Println("Скоры Бони:", bonya.Score)
+		fmt.Println("Скоры Васи:", vasya.Score)
 
 		isUpdateMessage := false
 		if gery.Score > gery.Speed {
@@ -224,10 +232,14 @@ func hBet(c *tb.Callback, snailName string) {
 			if rSnail == 2 {
 				luckySnail = &vasya
 			}
+			fmt.Println("rSnail:", rSnail)
 
 			randomka := Random(0, 100)
+			fmt.Println("randomka:", randomka)
+
 			if randomka < 20 {
 				luckySnail.Adka = Random(1, 4)
+				fmt.Println("luckySnail.Adka:", luckySnail.Adka)
 			}
 
 			message := fmt.Sprintf(GetText("race"), "ГОНКА",
@@ -236,6 +248,10 @@ func hBet(c *tb.Callback, snailName string) {
 				bonya.GetString(),
 				vasya.GetString(),
 			)
+
+			fmt.Println("Позиция Гери:", gery.Position)
+			fmt.Println("Позиция Бони:", bonya.Position)
+			fmt.Println("Позиция Васи:", vasya.Position)
 
 			B.Edit(c.Message, message, InlineBet)
 		}
