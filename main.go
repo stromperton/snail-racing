@@ -51,13 +51,13 @@ var (
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "Ставка 🍭 на Гери(🐌 №1)", Unique: "GaryBet"},
+					tb.InlineButton{Text: "🍭 На Гери(🐌 №1)", Unique: "GaryBet"},
 				},
 				{
-					tb.InlineButton{Text: "Ставка 🍓 на Боню(🐌 №2)", Unique: "BonyaBet"},
+					tb.InlineButton{Text: "🍓 На Боню(🐌 №2)", Unique: "BonyaBet"},
 				},
 				{
-					tb.InlineButton{Text: "Ставка 🍏 на Васю(🐌 №3)", Unique: "VasyaBet"},
+					tb.InlineButton{Text: "🍏 На Васю(🐌 №3)", Unique: "VasyaBet"},
 				},
 			},
 		},
@@ -180,9 +180,9 @@ func GetText(fileName string) string {
 func hBet(c *tb.Callback, snailName string) {
 	B.Respond(c)
 
-	gery := Snail{Adka: Random(1, 4), Candy: "🍭"}
-	bonya := Snail{Adka: Random(1, 4), Candy: "🍓"}
-	vasya := Snail{Adka: Random(1, 4), Candy: "🍏"}
+	gery := Snail{Adka: Random(1, 10), Candy: "🍭"}
+	bonya := Snail{Adka: Random(1, 10), Candy: "🍓"}
+	vasya := Snail{Adka: Random(1, 10), Candy: "🍏"}
 
 	gery.Speed = Random(60, 200)
 	bonya.Speed = Random(60, 200)
@@ -208,7 +208,7 @@ func hBet(c *tb.Callback, snailName string) {
 		randomka := Random(0, 100)
 
 		if randomka < 20 {
-			luckySnail.Adka = Random(1, 4)
+			luckySnail.Adka = Random(1, 10)
 		}
 
 		gery.Score += gery.Adka
@@ -220,17 +220,17 @@ func hBet(c *tb.Callback, snailName string) {
 		fmt.Println("Скоры Васи:", vasya.Score)
 
 		isUpdateMessage := false
-		if gery.Score > gery.Speed {
+		if gery.Score > 100 {
 			gery.Position++
 			gery.Score = 0
 			isUpdateMessage = true
 		}
-		if bonya.Score > bonya.Speed {
+		if bonya.Score > 100 {
 			bonya.Position++
 			bonya.Score = 0
 			isUpdateMessage = true
 		}
-		if vasya.Score > vasya.Speed {
+		if vasya.Score > 100 {
 			vasya.Position++
 			vasya.Score = 0
 			isUpdateMessage = true
