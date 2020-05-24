@@ -20,7 +20,7 @@ type Snail struct {
 }
 
 func (s *Snail) GetString() string {
-	base := "_______________" + s.Candy
+	base := "_________________________" + s.Candy
 	out := base[:s.Position] + "🐌" + base[s.Position:]
 
 	return out
@@ -52,7 +52,11 @@ var (
 			InlineKeyboard: [][]tb.InlineButton{
 				{
 					tb.InlineButton{Text: "Ставка 🍭 на Гери(🐌 №1)", Unique: "GaryBet"},
+				},
+				{
 					tb.InlineButton{Text: "Ставка 🍓 на Боню(🐌 №2)", Unique: "BonyaBet"},
+				},
+				{
 					tb.InlineButton{Text: "Ставка 🍏 на Васю(🐌 №3)", Unique: "VasyaBet"},
 				},
 			},
@@ -180,9 +184,9 @@ func hBet(c *tb.Callback, snailName string) {
 	bonya := Snail{Adka: 1, Candy: "🍓"}
 	vasya := Snail{Adka: 1, Candy: "🍏"}
 
-	gery.Speed = Random(85, 100)
-	bonya.Speed = Random(85, 100)
-	vasya.Speed = Random(85, 100)
+	gery.Speed = Random(60, 200)
+	bonya.Speed = Random(60, 200)
+	vasya.Speed = Random(60, 200)
 
 	fmt.Println("Скорость Гери:", gery.Speed)
 	fmt.Println("Скорость Бони:", bonya.Speed)
@@ -215,7 +219,7 @@ func hBet(c *tb.Callback, snailName string) {
 			isUpdateMessage = true
 		}
 
-		if gery.Position == 16 || bonya.Position == 16 || vasya.Position == 16 {
+		if gery.Position == 26 || bonya.Position == 26 || vasya.Position == 26 {
 			win = true
 		}
 
