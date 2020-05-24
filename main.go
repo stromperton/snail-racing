@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"github.com/go-pg/pg/v9"
 	tb "gopkg.in/tucnak/telebot.v2"
@@ -12,6 +13,9 @@ import (
 
 type Snail struct {
 	Position int
+	Speed    int
+	Score    int
+	Adka     int
 	Candy    string
 }
 
@@ -102,7 +106,7 @@ func main() {
 	B.Handle("\fBonyaBet", func(c *tb.Callback) { hBet(c, "bonya") })
 	B.Handle("\fVasyaBet", func(c *tb.Callback) { hBet(c, "vasya") })
 
-	connectDataBase()
+	ConnectDataBase()
 	defer db.Close()
 
 	B.Start()
@@ -135,7 +139,7 @@ func hText(m *tb.Message) {
 		vasya := Snail{Position: defPos, Candy: "🍏"}
 
 		message := fmt.Sprintf(GetText("race"), "Ожидание ставки...",
-			"Размер ставки - <b>10 BIP</b><br><b>Выигрыш - 20 BIP</b>",
+			"Размер ставки - <b>50 BIP</b><br><b>Выигрыш - 100 BIP</b>",
 			gery.GetString(),
 			bonya.GetString(),
 			vasya.GetString(),
@@ -168,7 +172,72 @@ func GetText(fileName string) string {
 
 func hBet(c *tb.Callback, snailName string) {
 	B.Respond(c)
-	B.Edit(c.Message, "Ставка принята", InlineBet)
+
+	gery := Snail{Adka: 1, Candy: "🍭"}
+	bonya := Snail{Adka: 1, Candy: "🍓"}
+	vasya := Snail{Adka: 1, Candy: "🍏"}
+
+	gery.Speed = Random(85, 100)
+	bonya.Speed = Random(85, 100)
+	vasya.Speed = Random(85, 100)
+
+	win := false
+	for !win {
+		gery.Score += gery.Adka
+		bonya.Score += bonya.Adka
+		vasya.Score += vasya.Adka
+
+		isUpdateMessage := false
+		if gery.Score > gery.Speed {
+			gery.Position++
+			gery.Score = 0
+			isUpdateMessage = true
+		}
+		if bonya.Score > bonya.Speed {
+			bonya.Position++
+			bonya.Score = 0
+			isUpdateMessage = true
+		}
+		if vasya.Score > vasya.Speed {
+			vasya.Position++
+			bonya.Score = 0
+			isUpdateMessage = true
+		}
+
+		if gery.Position == 17 || bonya.Position == 17 || vasya.Position == 17 {
+			win = true
+		}
+
+		if isUpdateMessage {
+
+			rSnail := Random(0, 3)
+			var luckySnail *Snail
+			if rSnail == 0 {
+				luckySnail = &gery
+			}
+			if rSnail == 1 {
+				luckySnail = &bonya
+			}
+			if rSnail == 2 {
+				luckySnail = &vasya
+			}
+
+			randomka := Random(0, 100)
+			if randomka < 20 {
+				luckySnail.Adka = Random(1, 4)
+			}
+
+			message := fmt.Sprintf(GetText("race"), "ГОНКА",
+				"",
+				gery.GetString(),
+				bonya.GetString(),
+				vasya.GetString(),
+			)
+
+			B.Edit(c.Message, message, InlineBet)
+		}
+		time.Sleep(time.Millisecond * 10)
+	}
 }
 
 func hSnails(c *tb.Callback, snailName string) {
@@ -196,20 +265,4 @@ func NewDefaultPlayer(id int) (Player, bool) {
 		return *p, true
 	}
 	return *p, false
-}
-
-//ConnectDataBase Подключение к базе данных
-func connectDataBase() {
-	opt, err := pg.ParseURL(os.Getenv("DATABASE_URL"))
-	if err != nil {
-		panic(err)
-	}
-
-	db = pg.Connect(opt)
-
-	err = CreateSchema(db)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Успешное подключение к базе данных")
 }
