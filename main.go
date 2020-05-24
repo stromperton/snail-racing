@@ -140,7 +140,7 @@ func hText(m *tb.Message) {
 
 		message := fmt.Sprintf(GetText("race"), "Ожидание ставки...",
 			`Размер ставки - <b>50 BIP</b>
-			<b>Выигрыш - 100 BIP</b>`,
+<b>Выигрыш - 100 BIP</b>`,
 			gery.GetString(),
 			bonya.GetString(),
 			vasya.GetString(),
@@ -203,11 +203,11 @@ func hBet(c *tb.Callback, snailName string) {
 		}
 		if vasya.Score > vasya.Speed {
 			vasya.Position++
-			bonya.Score = 0
+			vasya.Score = 0
 			isUpdateMessage = true
 		}
 
-		if gery.Position == 17 || bonya.Position == 17 || vasya.Position == 17 {
+		if gery.Position == 16 || bonya.Position == 16 || vasya.Position == 16 {
 			win = true
 		}
 
