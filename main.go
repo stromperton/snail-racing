@@ -139,7 +139,8 @@ func hText(m *tb.Message) {
 		vasya := Snail{Position: defPos, Candy: "🍏"}
 
 		message := fmt.Sprintf(GetText("race"), "Ожидание ставки...",
-			"Размер ставки - <b>50 BIP</b><br><b>Выигрыш - 100 BIP</b>",
+			`Размер ставки - <b>50 BIP</b>
+			<b>Выигрыш - 100 BIP</b>`,
 			gery.GetString(),
 			bonya.GetString(),
 			vasya.GetString(),
@@ -154,9 +155,11 @@ func hText(m *tb.Message) {
 	}
 	if m.Text == "💰 Деньги" {
 
+		B.Send(m.Sender, "💰 Деньги", ReplyMain)
 	}
 	if m.Text == "❓ Помощь" {
 
+		B.Send(m.Sender, "❓ Помощь", ReplyMain)
 	}
 }
 
