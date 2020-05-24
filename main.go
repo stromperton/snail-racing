@@ -51,7 +51,7 @@ var (
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "Ставка 🍭 на Гери(🐌 №1)", Unique: "GeryBet"},
+					tb.InlineButton{Text: "Ставка 🍭 на Гери(🐌 №1)", Unique: "GaryBet"},
 					tb.InlineButton{Text: "Ставка 🍓 на Боню(🐌 №2)", Unique: "BonyaBet"},
 					tb.InlineButton{Text: "Ставка 🍏 на Васю(🐌 №3)", Unique: "VasyaBet"},
 				},
@@ -64,7 +64,7 @@ var (
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "🐌 Гери", Unique: "Gery"},
+					tb.InlineButton{Text: "🐌 Гери", Unique: "Gary"},
 					tb.InlineButton{Text: "🐌 Боня", Unique: "Bonya"},
 					tb.InlineButton{Text: "🐌 Вася", Unique: "Vasya"},
 				},
@@ -144,7 +144,7 @@ func hText(m *tb.Message) {
 			bonya.GetString(),
 			vasya.GetString(),
 		)
-
+		fmt.Println(message)
 		B.Send(m.Sender, message, InlineBet)
 	}
 	if m.Text == "🐌 Улитки" {
