@@ -180,9 +180,9 @@ func GetText(fileName string) string {
 func hBet(c *tb.Callback, snailName string) {
 	B.Respond(c)
 
-	gery := Snail{Adka: 1, Candy: "🍭"}
-	bonya := Snail{Adka: 1, Candy: "🍓"}
-	vasya := Snail{Adka: 1, Candy: "🍏"}
+	gery := Snail{Adka: Random(1, 4), Candy: "🍭"}
+	bonya := Snail{Adka: Random(1, 4), Candy: "🍓"}
+	vasya := Snail{Adka: Random(1, 4), Candy: "🍏"}
 
 	gery.Speed = Random(60, 200)
 	bonya.Speed = Random(60, 200)
@@ -194,6 +194,23 @@ func hBet(c *tb.Callback, snailName string) {
 
 	win := false
 	for !win {
+		rSnail := Random(0, 3)
+		var luckySnail *Snail
+		if rSnail == 0 {
+			luckySnail = &gery
+		}
+		if rSnail == 1 {
+			luckySnail = &bonya
+		}
+		if rSnail == 2 {
+			luckySnail = &vasya
+		}
+		randomka := Random(0, 100)
+
+		if randomka < 20 {
+			luckySnail.Adka = Random(1, 4)
+		}
+
 		gery.Score += gery.Adka
 		bonya.Score += bonya.Adka
 		vasya.Score += vasya.Adka
@@ -224,27 +241,6 @@ func hBet(c *tb.Callback, snailName string) {
 		}
 
 		if isUpdateMessage {
-
-			rSnail := Random(0, 3)
-			var luckySnail *Snail
-			if rSnail == 0 {
-				luckySnail = &gery
-			}
-			if rSnail == 1 {
-				luckySnail = &bonya
-			}
-			if rSnail == 2 {
-				luckySnail = &vasya
-			}
-			fmt.Println("rSnail:", rSnail)
-
-			randomka := Random(0, 100)
-			fmt.Println("randomka:", randomka)
-
-			if randomka < 20 {
-				luckySnail.Adka = Random(1, 4)
-				fmt.Println("luckySnail.Adka:", luckySnail.Adka)
-			}
 
 			message := fmt.Sprintf(GetText("race"), "ГОНКА",
 				"",
