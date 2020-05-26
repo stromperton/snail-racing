@@ -145,7 +145,8 @@ func main() {
 
 	ConnectDataBase()
 	defer db.Close()
-
+	893015+00:00 app[web.1]: Hodik vasya 12
+	2020-05-26T09:19:44.97
 	B.Start()
 }
 
@@ -225,14 +226,13 @@ func hBet(c *tb.Callback, betSnailName string) {
 	for win == "nil" {
 
 		isUpdateMessage := false
-		for i, snail := range snails {
-			fmt.Println("Hodik", snail.Name, snail.Position)
+		for i := 0; i < 3; i++ {
 			isUpdate, winner := snails[i].Hodik()
 			if isUpdate {
 				isUpdateMessage = true
 			}
 			if winner {
-				winnersArray = append(winnersArray, snail.Name)
+				winnersArray = append(winnersArray, snails[i].Name)
 			}
 		}
 
