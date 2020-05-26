@@ -21,10 +21,12 @@ type Snail struct {
 }
 
 func (s *Snail) GetString() string {
-	out := s.Base[:s.Position] + "🐌" + s.Base[s.Position:]
-
+	var out string
 	if s.Position == winPos {
-		out = "_________________________🐌"
+		out = "__________________________🐌"
+	} else {
+		out = s.Base[:s.Position] + "🐌" + s.Base[s.Position:]
+
 	}
 	return out
 }
