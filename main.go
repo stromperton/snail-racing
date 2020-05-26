@@ -30,7 +30,7 @@ func (s *Snail) GetString() string {
 func (s *Snail) Hodik() (bool, bool) {
 	randomka := Random(0, 100)
 
-	if randomka < 20 {
+	if randomka < changeSpeedProb {
 		fmt.Println(s.Name, s.Adka)
 		s.Adka = Random(1, 10)
 		fmt.Println(s.Name, s.Adka)
@@ -52,8 +52,9 @@ func (s *Snail) Hodik() (bool, bool) {
 }
 
 var (
-	maxScore int
-	winPos   int
+	maxScore        int
+	winPos          int
+	changeSpeedProb int
 )
 
 var B *tb.Bot
@@ -118,6 +119,7 @@ func main() {
 
 	maxScore = GetInt("MAX_SCORE")
 	winPos = GetInt("WIN_POS")
+	changeSpeedProb = GetInt("CHANGE_SPEED_PROB")
 
 	poller := &tb.Webhook{
 		Listen:   ":" + port,
