@@ -203,8 +203,8 @@ func hText(m *tb.Message) {
 		B.Send(m.Sender, "💰 Деньги", ReplyMain)
 	}
 	if m.Text == "❓ Помощь" {
-
-		message := fmt.Sprintf("maxScore: %d win: %d", maxScore, winPos)
+		winC, loseC := GetRate(m.Sender.ID)
+		message := fmt.Sprintf(GetText("winrate"), winC, loseC)
 		B.Send(m.Sender, message, ReplyMain)
 	}
 }
@@ -221,11 +221,22 @@ func GetText(fileName string) string {
 
 func hBet(c *tb.Callback, betSnailName string) {
 	B.Respond(c)
+	var betka string
 
 	snails := [3]Snail{
 		{Adka: Random(1, 10), Base: "_________________________🍭", Name: "gary"},
 		{Adka: Random(1, 10), Base: "_________________________🍓", Name: "bonya"},
 		{Adka: Random(1, 10), Base: "_________________________🍏", Name: "vasya"},
+	}
+
+	if betSnailName == snails[0].Name {
+		betka = "Ставка: 🐌 <b>Гери</b> 🍭"
+	}
+	if betSnailName == snails[1].Name {
+		betka = "Ставка: 🐌 <b>Боня</b> 🍓"
+	}
+	if betSnailName == snails[2].Name {
+		betka = "Ставка: 🐌 <b>Вася</b> 🍏"
 	}
 
 	win := "nil"
@@ -256,8 +267,10 @@ func hBet(c *tb.Callback, betSnailName string) {
 		}
 
 		if isUpdateMessage {
-			message := fmt.Sprintf(messageRace, "ГОНКА",
-				"",
+			title := "Гонка началась..."
+
+			message := fmt.Sprintf(messageRace, title,
+				betka,
 				snails[0].GetString(),
 				snails[1].GetString(),
 				snails[2].GetString(),
@@ -265,6 +278,11 @@ func hBet(c *tb.Callback, betSnailName string) {
 			B.Edit(c.Message, message, InlineBet)
 		}
 		time.Sleep(time.Millisecond * 10)
+	}
+	if win == betSnailName {
+		doWin(c.Sender.ID)
+	} else {
+		doLose(c.Sender.ID)
 	}
 }
 
@@ -277,6 +295,8 @@ type Player struct {
 	ID         int
 	Address    string
 	PrivateKey string
+	WinCount   int
+	LoseCount  int
 }
 
 func NewDefaultPlayer(id int) (Player, bool) {
@@ -293,4 +313,30 @@ func NewDefaultPlayer(id int) (Player, bool) {
 		return *p, true
 	}
 	return *p, false
+}
+
+func doWin(id int) {
+	p := &Player{}
+	p.ID = id
+	p.WinCount++
+
+	db.Model(p).Set("win_count = ?", p.WinCount).Where("id = ?", p.ID).Update()
+}
+func doLose(id int) {
+	p := &Player{}
+	p.ID = id
+	p.LoseCount++
+
+	db.Model(p).Set("lose_count = ?", p.LoseCount).Where("id = ?", p.ID).Update()
+}
+
+func GetRate(id int) (int, int) {
+	p := &Player{}
+	p.ID = id
+	err := db.Select(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return p.WinCount, p.LoseCount
 }
