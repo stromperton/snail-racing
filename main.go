@@ -17,12 +17,11 @@ type Snail struct {
 	Speed    int
 	Score    int
 	Adka     int
-	Candy    string
+	Base     string
 }
 
 func (s *Snail) GetString() string {
-	base := "_________________________" + s.Candy
-	out := base[:s.Position] + "🐌" + base[s.Position:]
+	out := s.Base[:s.Position] + "🐌" + s.Base[s.Position:]
 
 	return out
 }
@@ -53,6 +52,8 @@ var (
 	maxScore        int
 	winPos          int
 	changeSpeedProb int
+
+	messageRace string
 )
 
 var B *tb.Bot
@@ -119,6 +120,8 @@ func main() {
 	winPos = GetInt("WIN_POS")
 	changeSpeedProb = GetInt("CHANGE_SPEED_PROB")
 
+	messageRace = GetText("race")
+
 	poller := &tb.Webhook{
 		Listen:   ":" + port,
 		Endpoint: &tb.WebhookEndpoint{PublicURL: publicURL},
@@ -171,9 +174,9 @@ func hText(m *tb.Message) {
 
 	if m.Text == "🏁 Гонка" {
 		defPos := 0
-		gary := Snail{Position: defPos, Candy: "🍭"}
-		bonya := Snail{Position: defPos, Candy: "🍓"}
-		vasya := Snail{Position: defPos, Candy: "🍏"}
+		gary := Snail{Position: defPos, Base: "_________________________🍭"}
+		bonya := Snail{Position: defPos, Base: "_________________________🍓"}
+		vasya := Snail{Position: defPos, Base: "_________________________🍏"}
 
 		message := fmt.Sprintf(GetText("race"), "Ожидание ставки...",
 			`Размер ставки - <b>50 BIP</b>
@@ -215,9 +218,9 @@ func hBet(c *tb.Callback, betSnailName string) {
 	B.Respond(c)
 
 	snails := [3]Snail{
-		{Adka: Random(1, 10), Candy: "🍭", Name: "gary"},
-		{Adka: Random(1, 10), Candy: "🍓", Name: "bonya"},
-		{Adka: Random(1, 10), Candy: "🍏", Name: "vasya"},
+		{Adka: Random(1, 10), Base: "_________________________🍭", Name: "gary"},
+		{Adka: Random(1, 10), Base: "_________________________🍓", Name: "bonya"},
+		{Adka: Random(1, 10), Base: "_________________________🍏", Name: "vasya"},
 	}
 
 	win := "nil"
@@ -248,14 +251,13 @@ func hBet(c *tb.Callback, betSnailName string) {
 		}
 
 		if isUpdateMessage {
-			message := fmt.Sprintf(GetText("race"), "ГОНКА",
+			message := fmt.Sprintf(messageRace, "ГОНКА",
 				"",
 				snails[0].GetString(),
 				snails[1].GetString(),
 				snails[2].GetString(),
 			)
-			fmt.Println(message)
-			//B.Edit(c.Message, message, InlineBet)
+			B.Edit(c.Message, message, InlineBet)
 		}
 		time.Sleep(time.Millisecond * 10)
 	}
