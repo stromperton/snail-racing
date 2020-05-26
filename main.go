@@ -224,7 +224,8 @@ func hBet(c *tb.Callback, betSnailName string) {
 		isUpdateMessage := false
 		for _, snail := range snails {
 			isUpdate, winner := snail.Hodik()
-
+			fmt.Println(snail.Name)
+			fmt.Println(snail.Score)
 			if isUpdate {
 				isUpdateMessage = true
 			}
