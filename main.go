@@ -254,8 +254,8 @@ func hBet(c *tb.Callback, betSnailName string) {
 				snails[1].GetString(),
 				snails[2].GetString(),
 			)
-
-			go B.Edit(c.Message, message, InlineBet)
+			fmt.Println(message)
+			//B.Edit(c.Message, message, InlineBet)
 		}
 		time.Sleep(time.Millisecond * 10)
 	}
