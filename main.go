@@ -31,7 +31,9 @@ func (s *Snail) Hodik() (bool, bool) {
 	randomka := Random(0, 100)
 
 	if randomka < 20 {
+		fmt.Println(s.Name, s.Adka)
 		s.Adka = Random(1, 10)
+		fmt.Println(s.Name, s.Adka)
 	}
 
 	s.Score += s.Adka
@@ -249,9 +251,6 @@ func hBet(c *tb.Callback, betSnailName string) {
 		}
 
 		if isUpdateMessage {
-			fmt.Println("Update...M")
-			fmt.Println(snails[0].Score)
-			fmt.Println(snails[0].Position)
 			message := fmt.Sprintf(GetText("race"), "ГОНКА",
 				"",
 				snails[0].GetString(),
