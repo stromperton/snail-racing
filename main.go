@@ -217,15 +217,17 @@ func hBet(c *tb.Callback, betSnailName string) {
 		{Adka: Random(1, 10), Candy: "🍓", Name: "bonya"},
 		{Adka: Random(1, 10), Candy: "🍏", Name: "vasya"},
 	}
+	fmt.Println("Gery", snails[0].Adka)
+	fmt.Println("BOnya", snails[1].Adka)
+	fmt.Println("Vasya", snails[2].Adka)
+
 	win := "nil"
 	var winnersArray []string
 	for win == "nil" {
 
 		isUpdateMessage := false
-		for _, snail := range snails {
-			isUpdate, winner := snail.Hodik()
-			fmt.Println(snail.Name)
-			fmt.Println(snail.Score)
+		for i, snail := range snails {
+			isUpdate, winner := snails[i].Hodik()
 			if isUpdate {
 				isUpdateMessage = true
 			}
