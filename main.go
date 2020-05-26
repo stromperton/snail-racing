@@ -236,6 +236,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 				isUpdateMessage = true
 			}
 			if winner {
+				fmt.Println(snail.Name)
 				winnersArray = append(winnersArray, snail.Name)
 			}
 		}
