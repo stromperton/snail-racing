@@ -31,9 +31,7 @@ func (s *Snail) Hodik() (bool, bool) {
 	randomka := Random(0, 100)
 
 	if randomka < changeSpeedProb {
-		fmt.Println(s.Name, s.Adka)
 		s.Adka = Random(1, 10)
-		fmt.Println(s.Name, s.Adka)
 	}
 
 	s.Score += s.Adka
@@ -221,9 +219,6 @@ func hBet(c *tb.Callback, betSnailName string) {
 		{Adka: Random(1, 10), Candy: "🍓", Name: "bonya"},
 		{Adka: Random(1, 10), Candy: "🍏", Name: "vasya"},
 	}
-	fmt.Println("Gery", snails[0].Adka)
-	fmt.Println("BOnya", snails[1].Adka)
-	fmt.Println("Vasya", snails[2].Adka)
 
 	win := "nil"
 	var winnersArray []string
@@ -231,12 +226,12 @@ func hBet(c *tb.Callback, betSnailName string) {
 
 		isUpdateMessage := false
 		for i, snail := range snails {
+			fmt.Println("Hodik", snail.Name, snail.Position)
 			isUpdate, winner := snails[i].Hodik()
 			if isUpdate {
 				isUpdateMessage = true
 			}
 			if winner {
-				fmt.Println(snail.Name)
 				winnersArray = append(winnersArray, snail.Name)
 			}
 		}
