@@ -145,8 +145,7 @@ func main() {
 
 	ConnectDataBase()
 	defer db.Close()
-	893015+00:00 app[web.1]: Hodik vasya 12
-	2020-05-26T09:19:44.97
+
 	B.Start()
 }
 
@@ -256,7 +255,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 				snails[2].GetString(),
 			)
 
-			B.Edit(c.Message, message, InlineBet)
+			go B.Edit(c.Message, message, InlineBet)
 		}
 		time.Sleep(time.Millisecond * 10)
 	}
