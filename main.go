@@ -194,7 +194,8 @@ func hText(m *tb.Message) {
 	}
 	if m.Text == "❓ Помощь" {
 
-		B.Send(m.Sender, "❓ Помощь", ReplyMain)
+		message := fmt.Sprintf("maxScore: %d win: %d", maxScore, winPos)
+		B.Send(m.Sender, message, ReplyMain)
 	}
 }
 
@@ -212,9 +213,9 @@ func hBet(c *tb.Callback, betSnailName string) {
 	B.Respond(c)
 
 	snails := [3]Snail{
-		Snail{Adka: Random(1, 10), Candy: "🍭", Name: "gary"},
-		Snail{Adka: Random(1, 10), Candy: "🍓", Name: "bonya"},
-		Snail{Adka: Random(1, 10), Candy: "🍏", Name: "vasya"},
+		{Adka: Random(1, 10), Candy: "🍭", Name: "gary"},
+		{Adka: Random(1, 10), Candy: "🍓", Name: "bonya"},
+		{Adka: Random(1, 10), Candy: "🍏", Name: "vasya"},
 	}
 	win := "nil"
 	var winnersArray []string
@@ -245,7 +246,9 @@ func hBet(c *tb.Callback, betSnailName string) {
 		}
 
 		if isUpdateMessage {
-
+			fmt.Println("Update...M")
+			fmt.Println(snails[0].Score)
+			fmt.Println(snails[0].Position)
 			message := fmt.Sprintf(GetText("race"), "ГОНКА",
 				"",
 				snails[0].GetString(),
