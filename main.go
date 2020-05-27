@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/go-pg/pg/v9"
@@ -208,8 +207,7 @@ func hText(m *tb.Message) {
 
 		address, _ := GetWallet(m.Sender.ID)
 		bipBalance := GetBalance(address)
-		flt, _ := strconv.ParseFloat(bipBalance, 64)
-		usdBalance := GetBipPrice() * flt
+		usdBalance := GetBipPrice() * bipBalance
 
 		message := fmt.Sprintf(GetText("winrate"), address, bipBalance, usdBalance, winC, "0", 0)
 

@@ -45,7 +45,7 @@ func SendCoin(num string, address string, privateKey string) (*api.SendTransacti
 	return result, err
 }
 
-func GetBalance(address string) string {
+func GetBalance(address string) float64 {
 
 	response, err := minterClient.Balance(address)
 
@@ -53,7 +53,8 @@ func GetBalance(address string) string {
 		fmt.Println(err)
 	}
 
-	return response["MNT"]
+	num, err := strconv.ParseFloat(response["MNT"], 64)
+	return num / 1000000000000000000
 }
 
 func CreateWallet() (string, string) {
