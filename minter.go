@@ -2,31 +2,35 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"math/big"
+	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/MinterTeam/minter-go-sdk/api"
 	"github.com/MinterTeam/minter-go-sdk/transaction"
 	"github.com/MinterTeam/minter-go-sdk/wallet"
+	"github.com/buger/jsonparser"
 	"github.com/go-resty/resty/v2"
 )
 
 var (
-	nodeUrl = "https://texas.mnt.funfasy.dev/v0/" //"https://api.minter.one/ https://texasnet.node-api.minter.network/"
+	nodeUrl = "https://test.mnt.funfasy.dev/v0/"
 	restyC  = resty.New().SetHeaders(map[string]string{
 		"Content-Type":     "application/json",
-		"X-Project-Id":     "5311bad1-99e0-462e-943e-6c6e77714d26",
-		"X-Project-Secret": "67b63b2937087ddb1d266ec33b26787f",
+		"X-Project-Id":     os.Getenv("FUNFASY_ID"),
+		"X-Project-Secret": os.Getenv("FUNFASY_SECRET"),
 	})
 
 	minterClient = api.NewApiWithClient(nodeUrl, restyC)
 )
 
-func SendCoin(num string, address string, privateKey string) {
+func SendCoin(num string, address string, privateKey string) (*api.SendTransactionResult, error) {
 	value, ok := new(big.Int).SetString(num, 10)
 	if !ok {
 		fmt.Println("SetString: error")
-		return
+		return nil, nil
 	}
 	data, _ := transaction.NewSendData().SetCoin("MNT").SetValue(value).SetTo(address)
 	minGasPrice, _ := minterClient.MinGasPrice()
@@ -36,7 +40,9 @@ func SendCoin(num string, address string, privateKey string) {
 	tx, _ := transaction.NewBuilder(transaction.TestNetChainID).NewTransaction(data)
 	tx.SetNonce(nonce).SetGasPrice(uint8(gasPrice)).SetGasCoin("MNT")
 	signedTx, _ := tx.Sign(privateKey)
-	minterClient.SendTransaction(signedTx)
+	result, err := minterClient.SendTransaction(signedTx)
+
+	return result, err
 }
 
 func GetBalance(address string) string {
@@ -53,4 +59,31 @@ func GetBalance(address string) string {
 func CreateWallet() (string, string) {
 	walletData, _ := wallet.Create()
 	return walletData.Address, walletData.PrivateKey
+}
+
+func GetPrivateKeyFromMnemonic(mnemonic string) string {
+	seed, _ := wallet.Seed(mnemonic)
+	prKey, _ := wallet.PrivateKeyBySeed(seed)
+	return prKey
+}
+
+func GetBipPrice() float64 {
+	resp, err := http.Get("	https://api.coingecko.com/api/v3/simple/price?ids=bip&vs_currencies=usd")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+
+	}
+
+	price, err := jsonparser.GetFloat(body, "bip", "usd")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return price
+
 }

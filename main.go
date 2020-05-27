@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/go-pg/pg/v9"
@@ -57,6 +58,8 @@ var (
 	maxScore        int
 	winPos          int
 	changeSpeedProb int
+
+	appWallet string
 
 	messageRace string
 )
@@ -124,6 +127,8 @@ func main() {
 	maxScore = GetInt("MAX_SCORE")
 	winPos = GetInt("WIN_POS")
 	changeSpeedProb = GetInt("CHANGE_SPEED_PROB")
+
+	appWallet = os.Getenv("APP_WALLET")
 
 	messageRace = GetText("race")
 
@@ -199,12 +204,19 @@ func hText(m *tb.Message) {
 		B.Send(m.Sender, message, InlineSnails)
 	}
 	if m.Text == "💰 Деньги" {
+		winC, _ := GetRate(m.Sender.ID)
 
-		B.Send(m.Sender, "💰 Деньги", ReplyMain)
+		address, _ := GetWallet(m.Sender.ID)
+		bipBalance := GetBalance(address)
+		flt, _ := strconv.ParseFloat(bipBalance, 64)
+		usdBalance := GetBipPrice() * flt
+
+		message := fmt.Sprintf(GetText("winrate"), bipBalance, usdBalance, winC, "0", 0)
+
+		B.Send(m.Sender, message, ReplyMain)
 	}
 	if m.Text == "❓ Помощь" {
-		winC, loseC := GetRate(m.Sender.ID)
-		message := fmt.Sprintf(GetText("winrate"), winC, loseC)
+		message := "Помощь..."
 		B.Send(m.Sender, message, ReplyMain)
 	}
 }
@@ -222,6 +234,15 @@ func GetText(fileName string) string {
 func hBet(c *tb.Callback, betSnailName string) {
 	B.Respond(c)
 	var betka string
+
+	_, key := GetWallet(c.Sender.ID)
+	result, err := SendCoin("50", appWallet, key)
+	if err != nil {
+		fmt.Println("Ошибка отправки транзакции", err)
+		return
+	}
+
+	fmt.Println(result)
 
 	snails := [3]Snail{
 		{Adka: Random(1, 10), Base: "_________________________🍭", Name: "gary"},
@@ -267,7 +288,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 		}
 
 		if isUpdateMessage {
-			title := "Гонка началась..."
+			title := "Гонка!"
 
 			message := fmt.Sprintf(messageRace, title,
 				betka,
@@ -275,11 +296,18 @@ func hBet(c *tb.Callback, betSnailName string) {
 				snails[1].GetString(),
 				snails[2].GetString(),
 			)
-			B.Edit(c.Message, message, InlineBet)
+			B.Edit(c.Message, message, tb.ModeHTML)
 		}
 		time.Sleep(time.Millisecond * 10)
 	}
 	if win == betSnailName {
+		address, _ := GetWallet(c.Sender.ID)
+		result, err := SendCoin("100", address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
+		if err != nil {
+			fmt.Println("Ошибка отправки транзакции", err)
+		}
+		fmt.Println(result)
+
 		doWin(c.Sender.ID)
 	} else {
 		doLose(c.Sender.ID)
@@ -295,8 +323,8 @@ type Player struct {
 	ID         int
 	Address    string
 	PrivateKey string
-	WinCount   int
-	LoseCount  int
+	WinCount   int `pg:"win_count,use_zero,notnull"`
+	LoseCount  int `pg:"lose_count,use_zero,notnull"`
 }
 
 func NewDefaultPlayer(id int) (Player, bool) {
@@ -339,4 +367,15 @@ func GetRate(id int) (int, int) {
 	}
 
 	return p.WinCount, p.LoseCount
+}
+
+func GetWallet(id int) (string, string) {
+	p := &Player{}
+	p.ID = id
+	err := db.Select(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return p.Address, p.PrivateKey
 }
