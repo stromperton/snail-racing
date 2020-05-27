@@ -233,8 +233,8 @@ func hBet(c *tb.Callback, betSnailName string) {
 	B.Respond(c)
 	var betka string
 
-	_, key := GetWallet(c.Sender.ID)
-	result, err := SendCoin("50", appWallet, key)
+	address, key := GetWallet(c.Sender.ID)
+	result, err := SendCoin("50", address, appWallet, key)
 	if err != nil {
 		fmt.Println("Ошибка отправки транзакции", err)
 		return
@@ -300,7 +300,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 	}
 	if win == betSnailName {
 		address, _ := GetWallet(c.Sender.ID)
-		result, err := SendCoin("100", address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
+		result, err := SendCoin("100", appWallet, address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
 		if err != nil {
 			fmt.Println("Ошибка отправки транзакции", err)
 		}

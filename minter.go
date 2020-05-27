@@ -26,7 +26,7 @@ var (
 	minterClient = api.NewApiWithClient(nodeUrl, restyC)
 )
 
-func SendCoin(num string, address string, privateKey string) (*api.SendTransactionResult, error) {
+func SendCoin(num string, fromAddress string, address string, privateKey string) (*api.SendTransactionResult, error) {
 	value, ok := new(big.Int).SetString(num, 10)
 	if !ok {
 		fmt.Println("SetString: error")
@@ -35,7 +35,7 @@ func SendCoin(num string, address string, privateKey string) (*api.SendTransacti
 	data, _ := transaction.NewSendData().SetCoin("MNT").SetValue(value).SetTo(address)
 	minGasPrice, _ := minterClient.MinGasPrice()
 	gasPrice, _ := strconv.ParseUint(minGasPrice, 10, 8)
-	nonce, _ := minterClient.Nonce(address)
+	nonce, _ := minterClient.Nonce(fromAddress)
 
 	tx, _ := transaction.NewBuilder(transaction.TestNetChainID).NewTransaction(data)
 	tx.SetNonce(nonce).SetGasPrice(uint8(gasPrice)).SetGasCoin("MNT")
