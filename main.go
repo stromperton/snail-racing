@@ -211,7 +211,7 @@ func hText(m *tb.Message) {
 		flt, _ := strconv.ParseFloat(bipBalance, 64)
 		usdBalance := GetBipPrice() * flt
 
-		message := fmt.Sprintf(GetText("winrate"), bipBalance, usdBalance, winC, "0", 0)
+		message := fmt.Sprintf(GetText("winrate"), address, bipBalance, usdBalance, winC, "0", 0)
 
 		B.Send(m.Sender, message, ReplyMain)
 	}

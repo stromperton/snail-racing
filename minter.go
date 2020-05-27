@@ -68,7 +68,7 @@ func GetPrivateKeyFromMnemonic(mnemonic string) string {
 }
 
 func GetBipPrice() float64 {
-	resp, err := http.Get("	https://api.coingecko.com/api/v3/simple/price?ids=bip&vs_currencies=usd")
+	resp, err := http.Get("https://api.coingecko.com/api/v3/simple/price?ids=bip&vs_currencies=usd")
 	if err != nil {
 		fmt.Println(err)
 	}
