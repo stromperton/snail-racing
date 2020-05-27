@@ -237,6 +237,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 	result, err := SendCoin("50", address, appWallet, key)
 	if err != nil {
 		fmt.Println("Ошибка отправки транзакции", err)
+		B.Send(c.Sender, "Недостаточно средств", tb.ModeHTML)
 		return
 	}
 
