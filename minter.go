@@ -26,8 +26,9 @@ var (
 	minterClient = api.NewApiWithClient(nodeUrl, restyC)
 )
 
-func SendCoin(num string, fromAddress string, address string, privateKey string) (*api.SendTransactionResult, error) {
-	value, ok := new(big.Int).SetString(num, 10)
+func SendCoin(num int, fromAddress string, address string, privateKey string) (*api.SendTransactionResult, error) {
+	snum := strconv.Itoa(num * 1000000000000000000)
+	value, ok := new(big.Int).SetString(snum, 10)
 	if !ok {
 		fmt.Println("SetString: error")
 		return nil, nil
