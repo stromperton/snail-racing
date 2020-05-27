@@ -345,6 +345,7 @@ func NewDefaultPlayer(id int) (Player, bool) {
 func doWin(id int) {
 	p := &Player{}
 	p.ID = id
+	p.WinCount, _ = GetRate(id)
 	p.WinCount++
 
 	db.Model(p).Set("win_count = ?", p.WinCount).Where("id = ?", p.ID).Update()
@@ -352,6 +353,7 @@ func doWin(id int) {
 func doLose(id int) {
 	p := &Player{}
 	p.ID = id
+	_, p.LoseCount = GetRate(id)
 	p.LoseCount++
 
 	db.Model(p).Set("lose_count = ?", p.LoseCount).Where("id = ?", p.ID).Update()
