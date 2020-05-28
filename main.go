@@ -76,7 +76,7 @@ var (
 				},
 				{
 					tb.ReplyButton{Text: "🐌 Улитки"},
-					tb.ReplyButton{Text: "💰 Деньги"},
+					tb.ReplyButton{Text: "💰 Кошелёк"},
 					tb.ReplyButton{Text: "❓ Помощь"},
 				},
 			},
@@ -108,6 +108,18 @@ var (
 					tb.InlineButton{Text: "🐌 Гери", Unique: "Gary"},
 					tb.InlineButton{Text: "🐌 Боня", Unique: "Bonya"},
 					tb.InlineButton{Text: "🐌 Вася", Unique: "Vasya"},
+				},
+			},
+		},
+	}
+
+	InlineMoney = &tb.SendOptions{
+		ParseMode: tb.ModeHTML,
+		ReplyMarkup: &tb.ReplyMarkup{
+			InlineKeyboard: [][]tb.InlineButton{
+				{
+					tb.InlineButton{Text: "📥 Пополнить", Unique: "MoneyIn"},
+					tb.InlineButton{Text: "📤 Вывести", Unique: "MoneyOut"},
 				},
 			},
 		},
@@ -155,10 +167,25 @@ func main() {
 	B.Handle("\fBonyaBet", func(c *tb.Callback) { hBet(c, "bonya") })
 	B.Handle("\fVasyaBet", func(c *tb.Callback) { hBet(c, "vasya") })
 
+	B.Handle("\fMoneyIn", hMoneyIn)
+	B.Handle("\fMoneyOut", hMoneyOut)
+
 	ConnectDataBase()
 	defer db.Close()
 
 	B.Start()
+}
+
+func hMoneyIn(c *tb.Callback) {
+	B.Respond(c)
+	address, _ := GetWallet(c.Sender.ID)
+
+	B.Send(c.Sender, "Чтобы пополнить баланс, переведите BIP на адрес:")
+	B.Send(c.Sender, "<code>"+address+"</code>", tb.ModeHTML)
+}
+func hMoneyOut(c *tb.Callback) {
+	B.Respond(c)
+
 }
 
 func hStart(m *tb.Message) {
@@ -202,19 +229,19 @@ func hText(m *tb.Message) {
 
 		B.Send(m.Sender, message, InlineSnails)
 	}
-	if m.Text == "💰 Деньги" {
+	if m.Text == "💰 Кошелёк" {
 		winC, _ := GetRate(m.Sender.ID)
 
 		address, _ := GetWallet(m.Sender.ID)
 		bipBalance := GetBalance(address)
 		usdBalance := GetBipPrice() * bipBalance
 
-		message := fmt.Sprintf(GetText("winrate"), address, bipBalance, usdBalance, winC, "0", 0)
+		message := fmt.Sprintf(GetText("winrate"), bipBalance, usdBalance, winC)
 
-		B.Send(m.Sender, message, ReplyMain)
+		B.Send(m.Sender, message, InlineMoney)
 	}
 	if m.Text == "❓ Помощь" {
-		message := "Помощь..."
+		message := GetText("help")
 		B.Send(m.Sender, message, ReplyMain)
 	}
 }
