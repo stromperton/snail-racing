@@ -206,7 +206,7 @@ func hMoneyOut(c *tb.Callback) {
 	}
 
 	SetBotState(c.Sender.ID, "MinterAddressSend")
-	B.Send(c.Sender, "Куда будем отправлять монетки? <b>Пришли свой адрес в сети Minter</b>", tb.ModeHTML)
+	B.Send(c.Sender, "Куда будем отправлять монетки? <b>Пришли свой адрес в сети Minter</b>", &tb.SendOptions{ParseMode: tb.ModeHTML, ReplyMarkup: &tb.ReplyMarkup{ReplyKeyboardRemove: true}})
 }
 
 func hStart(m *tb.Message) {
@@ -239,22 +239,23 @@ func hText(m *tb.Message) {
 			snum := fmt.Sprint((GetBalance(adress) - 0.01))
 			_, err := SendCoin(snum, adress, outAdress, prKey)
 			if err != nil {
-				B.Send(m.Sender, "🤯 Ошибка транзакции")
+				B.Send(m.Sender, "🤯 Ошибка транзакции", ReplyMain)
 			} else {
-				B.Send(m.Sender, "🎉 Монеты успешно отправлены!")
+				B.Send(m.Sender, "🎉 Монеты успешно отправлены!", ReplyMain)
 			}
-		}
-		_, err := strconv.ParseFloat(m.Text, 64)
-		if err != nil {
-			B.Send(m.Sender, "🤯 Что-то не так... Нужно просто отправить число монет", ReplyMain)
 		} else {
-			adress, prKey := GetWallet(m.Sender.ID)
-			outAdress := GetOutAddress(m.Sender.ID)
-			_, err := SendCoin(m.Text, adress, outAdress, prKey)
-			if err != nil {
-				B.Send(m.Sender, "🤯 Ошибка транзакции")
+			flyt, err := strconv.ParseFloat(m.Text, 64)
+			if err != nil && flyt < 40 {
+				B.Send(m.Sender, "🤯 Что-то не так... Нужно просто отправить число монет", ReplyMain)
 			} else {
-				B.Send(m.Sender, "🎉 Монеты успешно отправлены!")
+				adress, prKey := GetWallet(m.Sender.ID)
+				outAdress := GetOutAddress(m.Sender.ID)
+				_, err := SendCoin(m.Text, adress, outAdress, prKey)
+				if err != nil {
+					B.Send(m.Sender, "🤯 Ошибка транзакции", ReplyMain)
+				} else {
+					B.Send(m.Sender, "🎉 Монеты успешно отправлены!", ReplyMain)
+				}
 			}
 		}
 		SetBotState(m.Sender.ID, "default")
@@ -315,9 +316,9 @@ func hText(m *tb.Message) {
 			B.Send(m.Sender, message, InlineMoney)
 		} else if m.Text == "❓ Помощь" {
 			message := GetText("help")
-			B.Send(m.Sender, message, ReplyMain, &tb.SendOptions{DisableWebPagePreview: true})
+			B.Send(m.Sender, message, &tb.SendOptions{DisableWebPagePreview: true, ParseMode: tb.ModeHTML})
 		} else {
-			B.Send(m.Sender, "🤯 Жми на кнопки в меню! Я не особо разговорчив...", ReplyMain)
+			B.Send(m.Sender, "🤯 Жми на кнопки в меню!", ReplyMain)
 		}
 	}
 }
