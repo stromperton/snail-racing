@@ -85,6 +85,18 @@ var (
 		},
 	}
 
+	ReplyOut = &tb.SendOptions{
+		ParseMode: tb.ModeHTML,
+		ReplyMarkup: &tb.ReplyMarkup{
+			ResizeReplyKeyboard: true,
+			ReplyKeyboard: [][]tb.ReplyButton{
+				{
+					tb.ReplyButton{Text: "💰 Отправить всё"},
+				},
+			},
+		},
+	}
+
 	InlineBet = &tb.SendOptions{
 		ParseMode: tb.ModeHTML,
 		ReplyMarkup: &tb.ReplyMarkup{
@@ -194,7 +206,7 @@ func hMoneyOut(c *tb.Callback) {
 	}
 
 	SetBotState(c.Sender.ID, "MinterAddressSend")
-	B.Send(c.Sender, "Куда будем отправлять монетки? Пришли свой адрес в сети Minter")
+	B.Send(c.Sender, "Куда будем отправлять монетки? <b>Пришли свой адрес в сети Minter</b>", tb.ModeHTML)
 }
 
 func hStart(m *tb.Message) {
@@ -221,6 +233,17 @@ func hText(m *tb.Message) {
 	botState := GetBotState(m.Sender.ID)
 
 	if botState == "CoinNumSend" {
+		if m.Text == "💰 Отправить всё" {
+			adress, prKey := GetWallet(m.Sender.ID)
+			outAdress := GetOutAddress(m.Sender.ID)
+			snum := fmt.Sprint((GetBalance(adress) - 0.01))
+			_, err := SendCoin(snum, adress, outAdress, prKey)
+			if err != nil {
+				B.Send(m.Sender, "🤯 Ошибка транзакции")
+			} else {
+				B.Send(m.Sender, "🎉 Монеты успешно отправлены!")
+			}
+		}
 		_, err := strconv.ParseFloat(m.Text, 64)
 		if err != nil {
 			B.Send(m.Sender, "🤯 Что-то не так... Нужно просто отправить число монет", ReplyMain)
@@ -243,9 +266,20 @@ func hText(m *tb.Message) {
 			SetBotState(m.Sender.ID, "default")
 			B.Send(m.Sender, "🤯 С этим адресом что-то не так. Перепроверь и попробуй ещё раз", ReplyMain)
 		} else {
+			address, _ := GetWallet(m.Sender.ID)
+			bipBalance := GetBalance(address)
+
+			max := GetBalance(address) - 0.01
+
 			SetOutAddress(m.Sender.ID, m.Text)
 			SetBotState(m.Sender.ID, "CoinNumSend")
-			B.Send(m.Sender, "Сколько ты хочешь вывести? Введи количество монет <b>BIP</b>")
+			message := `Сколько ты хочешь вывести? <b>Введи количество монет BIP</b>
+<b>Доступно:</b> %.2f BIP
+<b>Коммиссия на вывод средств:</b> 0.01 BIP
+<b>Минимальная сумма:</b> 40 BIP
+<b>Максимальная сумма:</b> %.2f BIP`
+
+			B.Send(m.Sender, fmt.Sprintf(message, bipBalance, max), ReplyOut)
 		}
 
 	} else {
