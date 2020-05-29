@@ -237,7 +237,8 @@ func hText(m *tb.Message) {
 			adress, prKey := GetWallet(m.Sender.ID)
 			outAdress := GetOutAddress(m.Sender.ID)
 			snum := fmt.Sprint((GetBalance(adress) - 0.01))
-			_, err := SendCoin(snum, adress, outAdress, prKey)
+			res, err := SendCoin(snum, adress, outAdress, prKey)
+			fmt.Println(res, err)
 			if err != nil {
 				B.Send(m.Sender, "🤯 Ошибка транзакции", ReplyMain)
 			} else {
@@ -245,7 +246,7 @@ func hText(m *tb.Message) {
 			}
 		} else {
 			flyt, err := strconv.ParseFloat(m.Text, 64)
-			if err != nil && flyt < 40 {
+			if err != nil || flyt < 40 {
 				B.Send(m.Sender, "🤯 Что-то не так... Нужно просто отправить число монет", ReplyMain)
 			} else {
 				adress, prKey := GetWallet(m.Sender.ID)
@@ -275,6 +276,7 @@ func hText(m *tb.Message) {
 			SetOutAddress(m.Sender.ID, m.Text)
 			SetBotState(m.Sender.ID, "CoinNumSend")
 			message := `Сколько ты хочешь вывести? <b>Введи количество монет BIP</b>
+
 <b>Доступно:</b> %.2f BIP
 <b>Коммиссия на вывод средств:</b> 0.01 BIP
 <b>Минимальная сумма:</b> 40 BIP
