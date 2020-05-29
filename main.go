@@ -238,7 +238,7 @@ func hText(m *tb.Message) {
 			outAdress := GetOutAddress(m.Sender.ID)
 			snum := fmt.Sprint((GetBalance(adress) - 0.01))
 			res, err := SendCoin(snum, adress, outAdress, prKey)
-			fmt.Println(res, err)
+			fmt.Println(snum, GetBalance(adress), (GetBalance(adress) - 0.01), res, err)
 			if err != nil {
 				B.Send(m.Sender, "🤯 Ошибка транзакции", ReplyMain)
 			} else {
