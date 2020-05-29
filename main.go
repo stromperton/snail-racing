@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/go-pg/pg/v9"
@@ -180,12 +182,19 @@ func hMoneyIn(c *tb.Callback) {
 	B.Respond(c)
 	address, _ := GetWallet(c.Sender.ID)
 
-	B.Send(c.Sender, "Чтобы пополнить баланс, переведите BIP на адрес:")
+	B.Send(c.Sender, "Чтобы пополнить баланс, отправь BIP на этот адрес:")
 	B.Send(c.Sender, "<code>"+address+"</code>", tb.ModeHTML)
 }
 func hMoneyOut(c *tb.Callback) {
 	B.Respond(c)
 
+	address, _ := GetWallet(c.Sender.ID)
+	if GetBalance(address) < 40.01 {
+		B.Send(c.Sender, "🤯 Недостаточно средств для вывода!")
+	}
+
+	SetBotState(c.Sender.ID, "MinterAddressSend")
+	B.Send(c.Sender, "Куда будем отправлять монетки? Пришли свой адрес в сети Minter")
 }
 
 func hStart(m *tb.Message) {
@@ -197,9 +206,10 @@ func hStart(m *tb.Message) {
 	if isNewPlayer {
 		fmt.Printf("Новый игрок: @%s[%d]\n", m.Sender.Username, p.ID)
 
-		B.Send(m.Sender, "Стартовое сообщение", ReplyMain)
+		message := GetText("start")
+		B.Send(m.Sender, message, ReplyMain)
 	} else {
-		B.Send(m.Sender, "Похоже, что ты уже играешь!", ReplyMain)
+		B.Send(m.Sender, "🤯 Похоже, что ты уже играешь!", ReplyMain)
 	}
 }
 
@@ -208,41 +218,73 @@ func hText(m *tb.Message) {
 		return
 	}
 
-	if m.Text == "🏁 Гонка" {
-		defPos := 0
-		gary := Snail{Position: defPos, Base: "_________________________🍭"}
-		bonya := Snail{Position: defPos, Base: "_________________________🍓"}
-		vasya := Snail{Position: defPos, Base: "_________________________🍏"}
+	botState := GetBotState(m.Sender.ID)
 
-		message := fmt.Sprintf(GetText("race"), "Ожидание ставки...",
-			`Размер ставки - <b>50 BIP</b>
+	if botState == "CoinNumSend" {
+		_, err := strconv.ParseFloat(m.Text, 64)
+		if err != nil {
+			B.Send(m.Sender, "🤯 Что-то не так... Нужно просто отправить число монет", ReplyMain)
+		} else {
+			adress, prKey := GetWallet(m.Sender.ID)
+			outAdress := GetOutAddress(m.Sender.ID)
+			_, err := SendCoin(m.Text, adress, outAdress, prKey)
+			if err != nil {
+				B.Send(m.Sender, "🤯 Ошибка транзакции")
+			} else {
+				B.Send(m.Sender, "🎉 Монеты успешно отправлены!")
+			}
+		}
+		SetBotState(m.Sender.ID, "default")
+	} else if botState == "MinterAddressSend" {
+
+		_, err := minterClient.Address(m.Text)
+
+		if err != nil {
+			SetBotState(m.Sender.ID, "default")
+			B.Send(m.Sender, "🤯 С этим адресом что-то не так. Перепроверь и попробуй ещё раз", ReplyMain)
+		} else {
+			SetOutAddress(m.Sender.ID, m.Text)
+			SetBotState(m.Sender.ID, "CoinNumSend")
+			B.Send(m.Sender, "Сколько ты хочешь вывести? Введи количество монет <b>BIP</b>")
+		}
+
+	} else {
+
+		if m.Text == "🏁 Гонка" {
+			defPos := 0
+			gary := Snail{Position: defPos, Base: "_________________________🍭"}
+			bonya := Snail{Position: defPos, Base: "_________________________🍓"}
+			vasya := Snail{Position: defPos, Base: "_________________________🍏"}
+
+			message := fmt.Sprintf(GetText("race"), "Ожидание ставки...",
+				`Размер ставки - <b>50 BIP</b>
 <b>Выигрыш - 100 BIP</b>`,
-			gary.GetString(),
-			bonya.GetString(),
-			vasya.GetString(),
-		)
-		fmt.Println(message)
-		B.Send(m.Sender, message, InlineBet)
-	}
-	if m.Text == "🐌 Улитки" {
-		message := fmt.Sprintf(GetText("gary"))
+				gary.GetString(),
+				bonya.GetString(),
+				vasya.GetString(),
+			)
+			fmt.Println(message)
+			B.Send(m.Sender, message, InlineBet)
+		} else if m.Text == "🐌 Улитки" {
+			message := fmt.Sprintf(GetText("gary"))
 
-		B.Send(m.Sender, message, InlineSnails)
-	}
-	if m.Text == "💰 Кошелёк" {
-		winC, _ := GetRate(m.Sender.ID)
+			B.Send(m.Sender, message, InlineSnails)
+		} else if m.Text == "💰 Кошелёк" {
+			winC, _ := GetRate(m.Sender.ID)
 
-		address, _ := GetWallet(m.Sender.ID)
-		bipBalance := GetBalance(address)
-		usdBalance := GetBipPrice() * bipBalance
+			address, _ := GetWallet(m.Sender.ID)
+			bipBalance := GetBalance(address)
+			usdBalance := GetBipPrice() * bipBalance
 
-		message := fmt.Sprintf(GetText("winrate"), bipBalance, usdBalance, winC)
+			message := fmt.Sprintf(GetText("winrate"), math.Round(bipBalance*100)/100, math.Round(usdBalance*100)/100, winC)
 
-		B.Send(m.Sender, message, InlineMoney)
-	}
-	if m.Text == "❓ Помощь" {
-		message := GetText("help")
-		B.Send(m.Sender, message, ReplyMain)
+			B.Send(m.Sender, message, InlineMoney)
+		} else if m.Text == "❓ Помощь" {
+			message := GetText("help")
+			B.Send(m.Sender, message, ReplyMain, &tb.SendOptions{DisableWebPagePreview: true})
+		} else {
+			B.Send(m.Sender, "🤯 Жми на кнопки в меню! Я не особо разговорчив...", ReplyMain)
+		}
 	}
 }
 
@@ -264,7 +306,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 	result, err := SendCoin("50", address, appWallet, key)
 	if err != nil {
 		fmt.Println("Ошибка отправки транзакции", err)
-		B.Send(c.Sender, "Недостаточно средств", tb.ModeHTML)
+		B.Send(c.Sender, "Недостаточно средств? Загляни в раздел <b>💰 Кошелёк</b>", tb.ModeHTML)
 		return
 	}
 
@@ -351,12 +393,15 @@ type Player struct {
 	PrivateKey string
 	WinCount   int `pg:"win_count,use_zero,notnull"`
 	LoseCount  int `pg:"lose_count,use_zero,notnull"`
+	BotState   string
+	OutAddress string
 }
 
 func NewDefaultPlayer(id int) (Player, bool) {
 	p := &Player{}
 	p.ID = id
 	p.Address, p.PrivateKey = CreateWallet()
+	p.BotState = "default"
 
 	res, err := db.Model(p).OnConflict("DO NOTHING").Insert()
 	if err != nil {
@@ -406,4 +451,42 @@ func GetWallet(id int) (string, string) {
 	}
 
 	return p.Address, p.PrivateKey
+}
+
+func GetOutAddress(id int) string {
+	p := &Player{}
+	p.ID = id
+	err := db.Select(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return p.OutAddress
+}
+
+func SetOutAddress(id int, outA string) {
+	p := &Player{}
+	p.ID = id
+	p.OutAddress = outA
+
+	db.Model(p).Set("out_address = ?", p.OutAddress).Where("id = ?", p.ID).Update()
+}
+
+func GetBotState(id int) string {
+	p := &Player{}
+	p.ID = id
+	err := db.Select(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return p.BotState
+}
+
+func SetBotState(id int, state string) {
+	p := &Player{}
+	p.ID = id
+	p.BotState = state
+
+	db.Model(p).Set("bot_state = ?", p.BotState).Where("id = ?", p.ID).Update()
 }
