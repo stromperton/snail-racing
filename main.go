@@ -195,7 +195,7 @@ func hMoneyIn(c *tb.Callback) {
 	address, _ := GetWallet(c.Sender.ID)
 
 	B.Send(c.Sender, "Чтобы пополнить баланс, отправь BIP на этот адрес:")
-	B.Send(c.Sender, "<code>"+address+"</code>", tb.ModeHTML)
+	B.Send(c.Sender, "<code>"+address+"</code>", ReplyMain)
 }
 func hMoneyOut(c *tb.Callback) {
 	B.Respond(c)
@@ -203,10 +203,11 @@ func hMoneyOut(c *tb.Callback) {
 	address, _ := GetWallet(c.Sender.ID)
 	if GetBalance(address) < 40.01 {
 		B.Send(c.Sender, "🤯 Недостаточно средств для вывода!")
-	}
+	} else {
 
-	SetBotState(c.Sender.ID, "MinterAddressSend")
-	B.Send(c.Sender, "Куда будем отправлять монетки? <b>Пришли свой адрес в сети Minter</b>", &tb.SendOptions{ParseMode: tb.ModeHTML, ReplyMarkup: &tb.ReplyMarkup{ReplyKeyboardRemove: true}})
+		SetBotState(c.Sender.ID, "MinterAddressSend")
+		B.Send(c.Sender, "Куда будем отправлять монетки? <b>Пришли свой адрес в сети Minter</b>", &tb.SendOptions{ParseMode: tb.ModeHTML, ReplyMarkup: &tb.ReplyMarkup{ReplyKeyboardRemove: true}})
+	}
 }
 
 func hStart(m *tb.Message) {
@@ -238,9 +239,9 @@ func hText(m *tb.Message) {
 			outAdress := GetOutAddress(m.Sender.ID)
 			minGasPrice, _ := minterClient.MinGasPrice()
 			minGasPriceF, _ := strconv.ParseFloat(minGasPrice, 64)
-			num := GetBalance(adress) - minGasPriceF
-			res, err := SendCoin(num, adress, outAdress, prKey)
-			fmt.Println(num, GetBalance(adress), (GetBalance(adress) - minGasPriceF), res, err)
+			num := GetBalance(adress) - minGasPriceF*0.01
+			_, err := SendCoin(num, adress, outAdress, prKey)
+
 			if err != nil {
 				B.Send(m.Sender, "🤯 Ошибка транзакции", ReplyMain)
 			} else {
@@ -273,10 +274,11 @@ func hText(m *tb.Message) {
 			address, _ := GetWallet(m.Sender.ID)
 			bipBalance := GetBalance(address)
 
+			minterClient.MaxGas()
 			minGasPrice, _ := minterClient.MinGasPrice()
 			minGasPriceF, _ := strconv.ParseFloat(minGasPrice, 64)
 
-			max := bipBalance - minGasPriceF
+			max := bipBalance - minGasPriceF*0.01
 
 			SetOutAddress(m.Sender.ID, m.Text)
 			SetBotState(m.Sender.ID, "CoinNumSend")
