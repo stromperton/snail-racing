@@ -91,6 +91,7 @@ var (
 			ResizeReplyKeyboard: true,
 			ReplyKeyboard: [][]tb.ReplyButton{
 				{
+					tb.ReplyButton{Text: "❌ Отмена"},
 					tb.ReplyButton{Text: "💰 Отправить всё"},
 				},
 			},
@@ -194,7 +195,7 @@ func hMoneyIn(c *tb.Callback) {
 	B.Respond(c)
 	address, _ := GetWallet(c.Sender.ID)
 
-	B.Send(c.Sender, "Чтобы пополнить баланс, отправь BIP на этот адрес:")
+	B.Send(c.Sender, "💰 Чтобы пополнить баланс, отправь BIP на этот адрес:")
 	B.Send(c.Sender, "<code>"+address+"</code>", ReplyMain)
 }
 func hMoneyOut(c *tb.Callback) {
@@ -202,11 +203,12 @@ func hMoneyOut(c *tb.Callback) {
 
 	address, _ := GetWallet(c.Sender.ID)
 	if GetBalance(address) < 40.01 {
-		B.Send(c.Sender, "🤯 Недостаточно средств для вывода!")
+		B.Send(c.Sender, `🤯 Недостаточно средств для вывода!
+<b>Минимальная сумма вывода:</b> 40 BIP`)
 	} else {
 
 		SetBotState(c.Sender.ID, "MinterAddressSend")
-		B.Send(c.Sender, "Куда будем отправлять монетки? <b>Пришли свой адрес в сети Minter</b>", &tb.SendOptions{ParseMode: tb.ModeHTML, ReplyMarkup: &tb.ReplyMarkup{ReplyKeyboardRemove: true}})
+		B.Send(c.Sender, "💰 Куда будем отправлять монетки? <b>Пришли свой адрес в сети Minter</b>", &tb.SendOptions{ParseMode: tb.ModeHTML, ReplyMarkup: &tb.ReplyMarkup{ReplyKeyboardRemove: true}})
 	}
 }
 
@@ -243,10 +245,12 @@ func hText(m *tb.Message) {
 			_, err := SendCoin(num, adress, outAdress, prKey)
 
 			if err != nil {
-				B.Send(m.Sender, "🤯 Ошибка транзакции", ReplyMain)
+				B.Send(m.Sender, "🤯 Ошибка транзакции.", ReplyMain)
 			} else {
 				B.Send(m.Sender, "🎉 Монеты успешно отправлены!", ReplyMain)
 			}
+		} else if m.Text == "❌ Отмена" {
+			B.Send(m.Sender, "❌ Вывод прерван", ReplyMain)
 		} else {
 			flyt, err := strconv.ParseFloat(m.Text, 64)
 			if err != nil || flyt < 40 {
@@ -282,14 +286,14 @@ func hText(m *tb.Message) {
 
 			SetOutAddress(m.Sender.ID, m.Text)
 			SetBotState(m.Sender.ID, "CoinNumSend")
-			message := `Сколько ты хочешь вывести? <b>Введи количество монет BIP</b>
+			message := `💰 Сколько ты хочешь вывести? <b>Введи количество монет BIP</b>
 
 <b>Доступно:</b> %.2f BIP
 <b>Коммиссия на вывод средств:</b> %.2f BIP
 <b>Минимальная сумма:</b> 40 BIP
 <b>Максимальная сумма:</b> %.2f BIP`
 
-			B.Send(m.Sender, fmt.Sprintf(message, bipBalance, minGasPriceF, max), ReplyOut)
+			B.Send(m.Sender, fmt.Sprintf(message, bipBalance, minGasPriceF*0.01, max), ReplyOut)
 		}
 
 	} else {
@@ -300,9 +304,16 @@ func hText(m *tb.Message) {
 			bonya := Snail{Position: defPos, Base: "_________________________🍓"}
 			vasya := Snail{Position: defPos, Base: "_________________________🍏"}
 
-			message := fmt.Sprintf(GetText("race"), "Ожидание ставки...",
-				`Размер ставки - <b>50 BIP</b>
-<b>Выигрыш - 100 BIP</b>`,
+			address, _ := GetWallet(m.Sender.ID)
+			bipBalance := GetBalance(address)
+			minGasPrice, _ := minterClient.MinGasPrice()
+			minGasPriceF, _ := strconv.ParseFloat(minGasPrice, 64)
+
+			message := fmt.Sprintf(GetText("race"), "💰 Ожидание ставки...", fmt.Sprintf(`
+Баланс: <b>%.2f</b>
+Размер ставки - <b>50 BIP</b> + Комиссия - %.2f
+<b>Выигрыш - 100 BIP</b>
+`, bipBalance, minGasPriceF*0.01),
 				gary.GetString(),
 				bonya.GetString(),
 				vasya.GetString(),
@@ -350,7 +361,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 	result, err := SendCoin(50, address, appWallet, key)
 	if err != nil {
 		fmt.Println("Ошибка отправки транзакции", err)
-		B.Send(c.Sender, "Недостаточно средств? Загляни в раздел <b>💰 Кошелёк</b>", tb.ModeHTML)
+		B.Send(c.Sender, "🤯 Не хватает средств? Загляни в раздел <b>💰 Кошелёк</b>", tb.ModeHTML)
 		return
 	}
 
