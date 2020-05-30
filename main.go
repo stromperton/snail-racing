@@ -430,10 +430,31 @@ func hBet(c *tb.Callback, betSnailName string) {
 			B.Send(c.Sender, "🤯 ЭТОГО НЕ ДОЛЖНО БЫЛО СЛУЧИТСЯ! ВЫИГРЫШЬ НЕ ОТПРАВИЛСЯ!!!", ReplyMain)
 		}
 		fmt.Println(result)
+		title := "Твоя улитка победила! Выигрышь - 100 BIP"
+
+		message := fmt.Sprintf(messageRace, title,
+			betka,
+			snails[0].GetString(),
+			snails[1].GetString(),
+			snails[2].GetString(),
+		)
+		B.Edit(c.Message, message, tb.ModeHTML)
+		B.Send(c.Sender, "Твоя ставка зашла! Не забудь поделиться с друзьями!", tb.ModeHTML)
 
 		doWin(c.Sender.ID)
 	} else {
 		doLose(c.Sender.ID)
+
+		title := "Эхх, неудача! Попробуй ещё раз!"
+
+		message := fmt.Sprintf(messageRace, title,
+			betka,
+			snails[0].GetString(),
+			snails[1].GetString(),
+			snails[2].GetString(),
+		)
+		B.Edit(c.Message, message, tb.ModeHTML)
+		B.Send(c.Sender, "Ты можешь почитать про 🐌 Улиток в особом разделе", tb.ModeHTML)
 	}
 }
 
