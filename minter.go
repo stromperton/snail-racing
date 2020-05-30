@@ -26,9 +26,9 @@ var (
 	minterClient = api.NewApiWithClient(nodeUrl, restyC)
 )
 
-func SendCoin(num string, fromAddress string, address string, privateKey string) (*api.SendTransactionResult, error) {
-	num = num + "000000000000000000"
-	value, ok := new(big.Int).SetString(num, 10)
+func SendCoin(flyt float64, fromAddress string, address string, privateKey string) (*api.SendTransactionResult, error) {
+
+	value, ok := new(big.Int).SetString(fmt.Sprint(flyt*1000000000000000000), 10)
 	if !ok {
 		fmt.Println("SetString: error")
 		return nil, nil

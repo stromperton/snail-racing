@@ -236,9 +236,9 @@ func hText(m *tb.Message) {
 		if m.Text == "💰 Отправить всё" {
 			adress, prKey := GetWallet(m.Sender.ID)
 			outAdress := GetOutAddress(m.Sender.ID)
-			snum := fmt.Sprint((GetBalance(adress) - 0.01))
-			res, err := SendCoin(snum, adress, outAdress, prKey)
-			fmt.Println(snum, GetBalance(adress), (GetBalance(adress) - 0.01), res, err)
+			num := GetBalance(adress) - 0.01
+			res, err := SendCoin(num, adress, outAdress, prKey)
+			fmt.Println(num, GetBalance(adress), (GetBalance(adress) - 0.01), res, err)
 			if err != nil {
 				B.Send(m.Sender, "🤯 Ошибка транзакции", ReplyMain)
 			} else {
@@ -251,7 +251,7 @@ func hText(m *tb.Message) {
 			} else {
 				adress, prKey := GetWallet(m.Sender.ID)
 				outAdress := GetOutAddress(m.Sender.ID)
-				_, err := SendCoin(m.Text, adress, outAdress, prKey)
+				_, err := SendCoin(flyt, adress, outAdress, prKey)
 				if err != nil {
 					B.Send(m.Sender, "🤯 Ошибка транзакции", ReplyMain)
 				} else {
@@ -340,7 +340,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 	var betka string
 
 	address, key := GetWallet(c.Sender.ID)
-	result, err := SendCoin("50", address, appWallet, key)
+	result, err := SendCoin(50, address, appWallet, key)
 	if err != nil {
 		fmt.Println("Ошибка отправки транзакции", err)
 		B.Send(c.Sender, "Недостаточно средств? Загляни в раздел <b>💰 Кошелёк</b>", tb.ModeHTML)
@@ -407,7 +407,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 	}
 	if win == betSnailName {
 		address, _ := GetWallet(c.Sender.ID)
-		result, err := SendCoin("100", appWallet, address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
+		result, err := SendCoin(100, appWallet, address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
 		if err != nil {
 			fmt.Println("Ошибка отправки транзакции", err)
 		}
