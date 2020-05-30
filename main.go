@@ -310,10 +310,9 @@ func hText(m *tb.Message) {
 			minGasPriceF, _ := strconv.ParseFloat(minGasPrice, 64)
 
 			message := fmt.Sprintf(GetText("race"), "💰 Ожидание ставки...", fmt.Sprintf(`
-Баланс: <b>%.2f</b>
+Баланс: <b>%.2f BIP</b>
 Размер ставки - <b>50 BIP</b> + Комиссия - %.2f
-<b>Выигрыш - 100 BIP</b>
-`, bipBalance, minGasPriceF*0.01),
+<b>Выигрыш - 100 BIP</b>`, bipBalance, minGasPriceF*0.01),
 				gary.GetString(),
 				bonya.GetString(),
 				vasya.GetString(),
@@ -428,6 +427,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 		result, err := SendCoin(100, appWallet, address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
 		if err != nil {
 			fmt.Println("Ошибка отправки транзакции", err)
+			B.Send(c.Sender, "🤯 ЭТОГО НЕ ДОЛЖНО БЫЛО СЛУЧИТСЯ! ВЫИГРЫШЬ НЕ ОТПРАВИЛСЯ!!!", ReplyMain)
 		}
 		fmt.Println(result)
 
