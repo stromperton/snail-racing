@@ -236,9 +236,11 @@ func hText(m *tb.Message) {
 		if m.Text == "💰 Отправить всё" {
 			adress, prKey := GetWallet(m.Sender.ID)
 			outAdress := GetOutAddress(m.Sender.ID)
-			num := GetBalance(adress) - 0.01
+			minGasPrice, _ := minterClient.MinGasPrice()
+			minGasPriceF, _ := strconv.ParseFloat(minGasPrice, 64)
+			num := GetBalance(adress) - minGasPriceF
 			res, err := SendCoin(num, adress, outAdress, prKey)
-			fmt.Println(num, GetBalance(adress), (GetBalance(adress) - 0.01), res, err)
+			fmt.Println(num, GetBalance(adress), (GetBalance(adress) - minGasPriceF), res, err)
 			if err != nil {
 				B.Send(m.Sender, "🤯 Ошибка транзакции", ReplyMain)
 			} else {
@@ -271,18 +273,21 @@ func hText(m *tb.Message) {
 			address, _ := GetWallet(m.Sender.ID)
 			bipBalance := GetBalance(address)
 
-			max := GetBalance(address) - 0.01
+			minGasPrice, _ := minterClient.MinGasPrice()
+			minGasPriceF, _ := strconv.ParseFloat(minGasPrice, 64)
+
+			max := bipBalance - minGasPriceF
 
 			SetOutAddress(m.Sender.ID, m.Text)
 			SetBotState(m.Sender.ID, "CoinNumSend")
 			message := `Сколько ты хочешь вывести? <b>Введи количество монет BIP</b>
 
 <b>Доступно:</b> %.2f BIP
-<b>Коммиссия на вывод средств:</b> 0.01 BIP
+<b>Коммиссия на вывод средств:</b> %.2f BIP
 <b>Минимальная сумма:</b> 40 BIP
 <b>Максимальная сумма:</b> %.2f BIP`
 
-			B.Send(m.Sender, fmt.Sprintf(message, bipBalance, max), ReplyOut)
+			B.Send(m.Sender, fmt.Sprintf(message, bipBalance, minGasPriceF, max), ReplyOut)
 		}
 
 	} else {
