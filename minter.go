@@ -38,7 +38,7 @@ func SendCoin(flyt float64, fromAddress string, address string, privateKey strin
 	gasPrice, _ := strconv.ParseUint(minGasPrice, 10, 8)
 	nonce, _ := minterClient.Nonce(fromAddress)
 
-	tx, _ := transaction.NewBuilder(transaction.TestNetChainID).NewTransaction(data)
+	tx, _ := transaction.NewBuilder(transaction.MainNetChainID).NewTransaction(data)
 	tx.SetNonce(nonce).SetGasPrice(uint8(gasPrice)).SetGasCoin("BIP")
 	signedTx, _ := tx.Sign(privateKey)
 	result, err := minterClient.SendTransaction(signedTx)
