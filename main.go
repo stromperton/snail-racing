@@ -317,7 +317,7 @@ func hText(m *tb.Message) {
 				bonya.GetString(),
 				vasya.GetString(),
 			)
-			fmt.Println(message)
+
 			B.Send(m.Sender, message, InlineBet)
 		} else if m.Text == "🐌 Улитки" {
 			message := fmt.Sprintf(GetText("gary"))
