@@ -248,7 +248,7 @@ func hStart(m *tb.Message) {
 }
 
 func hSender(m *tb.Message) {
-	if !m.Private() || m.Sender.ID != 303629013 {
+	if !m.Private() || m.Sender.ID != 303629013 || !m.IsReply() {
 		return
 	}
 
@@ -260,7 +260,7 @@ func hSender(m *tb.Message) {
 	}
 
 	for _, v := range players {
-		B.Send(&tb.Chat{ID: int64(v.ID)}, m.Text, tb.ModeHTML)
+		B.Send(&tb.Chat{ID: int64(v.ID)}, m.ReplyTo.Text, tb.ModeHTML)
 	}
 
 }
@@ -290,7 +290,7 @@ func hText(m *tb.Message) {
 			B.Send(m.Sender, "❌ Вывод прерван", ReplyMain)
 		} else {
 			flyt, err := strconv.ParseFloat(m.Text, 64)
-			if err != nil || flyt < 40 {
+			if err != nil || flyt < 20 {
 				B.Send(m.Sender, "🤯 Что-то не так... Нужно просто отправить число монет", ReplyMain)
 			} else {
 				adress, prKey := GetWallet(m.Sender.ID)
@@ -327,7 +327,7 @@ func hText(m *tb.Message) {
 
 <b>Доступно:</b> %.2f BIP
 <b>Коммиссия на вывод средств:</b> %.2f BIP
-<b>Минимальная сумма:</b> 40 BIP
+<b>Минимальная сумма:</b> 20 BIP
 <b>Максимальная сумма:</b> %.2f BIP`
 
 			B.Send(m.Sender, fmt.Sprintf(message, bipBalance, minGasPriceF*0.01, max), ReplyOut)
