@@ -247,13 +247,8 @@ func hStart(m *tb.Message) {
 	}
 }
 
-type ttt interface {
-	// Must return legit Telegram chat_id or username
-	Recipient() string
-}
-
 func hSender(m *tb.Message) {
-	if !m.Private() || m.Sender.ID != 303629013 || !m.IsReply() {
+	if !m.Private() || m.Sender.ID != 303629013 {
 		return
 	}
 
@@ -265,7 +260,7 @@ func hSender(m *tb.Message) {
 	}
 
 	for _, v := range players {
-		B.Send(&tb.Chat{ID: int64(v.ID)}, m.ReplyTo.Text, tb.ModeHTML)
+		B.Send(&tb.Chat{ID: int64(v.ID)}, m.Text, tb.ModeHTML)
 	}
 
 }
@@ -346,15 +341,7 @@ func hText(m *tb.Message) {
 			bonya := Snail{Position: defPos, Base: "_________________________🍓"}
 			vasya := Snail{Position: defPos, Base: "_________________________🍏"}
 
-			address, _ := GetWallet(m.Sender.ID)
-			bipBalance := GetBalance(address)
-			minGasPrice, _ := minterClient.MinGasPrice()
-			minGasPriceF, _ := strconv.ParseFloat(minGasPrice, 64)
-
-			message := fmt.Sprintf(GetText("race"), "🐌 Ожидание ставки...", fmt.Sprintf(`
-Баланс: <b>%.2f BIP</b>
-Размер ставки - <b>50 BIP</b> + Комиссия - %.2f
-<b>Выигрыш - 100 BIP</b>`, bipBalance, minGasPriceF*0.01),
+			message := fmt.Sprintf(GetText("race"), "🐌 Ожидание ставки...", "Кто победит? На кого будешь ставить?",
 				gary.GetString(),
 				bonya.GetString(),
 				vasya.GetString(),
@@ -541,7 +528,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 	message := fmt.Sprintf(messageRace, "💰 Ожидание ставки...", fmt.Sprintf(`
 	Баланс: <b>%.2f BIP</b>
 	`+betka+`
-	Выигрыш - <b>Размер ставки X2</b>`, bipBalance),
+	Выигрыш = <b>Размер ставки × 2</b>`, bipBalance),
 		snails[0].GetString(),
 		snails[1].GetString(),
 		snails[2].GetString(),
