@@ -466,13 +466,13 @@ func hBetNum(c *tb.Callback) {
 	}
 	if win == betSnailName {
 		address, _ := GetWallet(c.Sender.ID)
-		result, err := SendCoin(100, appWallet, address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
+		result, err := SendCoin(betNum*2, appWallet, address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
 		if err != nil {
 			fmt.Println("Ошибка отправки транзакции", err)
-			B.Send(c.Sender, "🤯 ЭТОГО НЕ ДОЛЖНО БЫЛО СЛУЧИТСЯ! ВЫИГРЫШЬ НЕ ОТПРАВИЛСЯ!!!", ReplyMain)
+			B.Send(c.Sender, "🤯 ЭТОГО НЕ ДОЛЖНО БЫЛО СЛУЧИТСЯ! ВЫИГРЫШ НЕ ОТПРАВИЛСЯ!!!", ReplyMain)
 		}
 		fmt.Println(result)
-		title := "Твоя улитка победила! Выигрышь - 100 BIP"
+		title := fmt.Sprintf("Твоя улитка победила! Выигрыш - %.0f BIP!", betNum*2)
 
 		message := fmt.Sprintf(messageRace, title,
 			betka,
@@ -481,13 +481,13 @@ func hBetNum(c *tb.Callback) {
 			snails[2].GetString(),
 		)
 		B.Edit(c.Message, message, tb.ModeHTML)
-		B.Send(c.Sender, "Твоя ставка зашла! Не забудь поделиться с друзьями!", tb.ModeHTML)
+		B.Send(c.Sender, "<b>🎉 Твоя ставка зашла!</b> <i>Не забудь поделиться с друзьями!</i>", tb.ModeHTML)
 
 		doWin(c.Sender.ID)
 	} else {
 		doLose(c.Sender.ID)
 
-		title := "Эхх, неудача! Попробуй ещё раз!"
+		title := "К сожалению, твоя улитка проиграла..."
 
 		message := fmt.Sprintf(messageRace, title,
 			betka,
@@ -496,7 +496,7 @@ func hBetNum(c *tb.Callback) {
 			snails[2].GetString(),
 		)
 		B.Edit(c.Message, message, tb.ModeHTML)
-		B.Send(c.Sender, "Ты можешь почитать про 🐌 Улиток в особом разделе", tb.ModeHTML)
+		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
 }
 

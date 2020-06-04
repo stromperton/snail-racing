@@ -54,7 +54,7 @@ func GetBalance(address string) float64 {
 		fmt.Println(err)
 	}
 
-	num, err := strconv.ParseFloat(response["BIP"], 64)
+	num, err := strconv.ParseFloat(response["MNT"], 64)
 	return num / 1000000000000000000
 }
 
