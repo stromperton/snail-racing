@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	nodeUrl = "https://test.mnt.funfasy.dev/v0/"
+	nodeUrl = "https://mnt.funfasy.dev/v0/"
 	restyC  = resty.New().SetHeaders(map[string]string{
 		"Content-Type":     "application/json",
 		"X-Project-Id":     os.Getenv("FUNFASY_ID"),
@@ -33,13 +33,13 @@ func SendCoin(flyt float64, fromAddress string, address string, privateKey strin
 		fmt.Println("SetString: error")
 		return nil, nil
 	}
-	data, _ := transaction.NewSendData().SetCoin("MNT").SetValue(value).SetTo(address)
+	data, _ := transaction.NewSendData().SetCoin("BIP").SetValue(value).SetTo(address)
 	minGasPrice, _ := minterClient.MinGasPrice()
 	gasPrice, _ := strconv.ParseUint(minGasPrice, 10, 8)
 	nonce, _ := minterClient.Nonce(fromAddress)
 
-	tx, _ := transaction.NewBuilder(transaction.TestNetChainID).NewTransaction(data)
-	tx.SetNonce(nonce).SetGasPrice(uint8(gasPrice)).SetGasCoin("MNT")
+	tx, _ := transaction.NewBuilder(transaction.MainNetChainID).NewTransaction(data)
+	tx.SetNonce(nonce).SetGasPrice(uint8(gasPrice)).SetGasCoin("BIP")
 	signedTx, _ := tx.Sign(privateKey)
 	result, err := minterClient.SendTransaction(signedTx)
 
@@ -54,7 +54,7 @@ func GetBalance(address string) float64 {
 		fmt.Println(err)
 	}
 
-	num, err := strconv.ParseFloat(response["MNT"], 64)
+	num, err := strconv.ParseFloat(response["BIP"], 64)
 	return num / 1000000000000000000
 }
 
