@@ -260,7 +260,7 @@ func hSender(m *tb.Message) {
 	}
 
 	for _, v := range players {
-		B.Send(&tb.Chat{ID: int64(v.ID)}, m.ReplyTo, tb.ModeHTML)
+		B.Send(&tb.Chat{ID: int64(v.ID)}, m.ReplyTo.Text, tb.ModeHTML)
 	}
 
 }
