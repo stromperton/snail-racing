@@ -115,6 +115,22 @@ var (
 		},
 	}
 
+	InlineBetNum = &tb.SendOptions{
+		ParseMode: tb.ModeHTML,
+		ReplyMarkup: &tb.ReplyMarkup{
+			InlineKeyboard: [][]tb.InlineButton{
+				{
+					tb.InlineButton{Text: "10 BIP", Unique: "BetNum", Data: "10"},
+					tb.InlineButton{Text: "25 BIP", Unique: "BetNum", Data: "25"},
+				},
+				{
+					tb.InlineButton{Text: "50 BIP", Unique: "BetNum", Data: "50"},
+					tb.InlineButton{Text: "100 BIP", Unique: "BetNum", Data: "100"},
+				},
+			},
+		},
+	}
+
 	InlineSnails = &tb.SendOptions{
 		ParseMode: tb.ModeHTML,
 		ReplyMarkup: &tb.ReplyMarkup{
@@ -173,6 +189,7 @@ func main() {
 	}
 
 	B.Handle("/start", hStart)
+	B.Handle("/sender", hSender)
 	B.Handle(tb.OnText, hText)
 	B.Handle("\fGary", func(c *tb.Callback) { hSnails(c, "gary") })
 	B.Handle("\fBonya", func(c *tb.Callback) { hSnails(c, "bonya") })
@@ -181,6 +198,8 @@ func main() {
 	B.Handle("\fGaryBet", func(c *tb.Callback) { hBet(c, "gary") })
 	B.Handle("\fBonyaBet", func(c *tb.Callback) { hBet(c, "bonya") })
 	B.Handle("\fVasyaBet", func(c *tb.Callback) { hBet(c, "vasya") })
+
+	B.Handle("\fBetNum", hBetNum)
 
 	B.Handle("\fMoneyIn", hMoneyIn)
 	B.Handle("\fMoneyOut", hMoneyOut)
@@ -226,6 +245,29 @@ func hStart(m *tb.Message) {
 	} else {
 		B.Send(m.Sender, "🤯 Похоже, что ты уже играешь!", ReplyMain)
 	}
+}
+
+type ttt interface {
+	// Must return legit Telegram chat_id or username
+	Recipient() string
+}
+
+func hSender(m *tb.Message) {
+	if !m.Private() || m.Sender.ID != 303629013 || !m.IsReply() {
+		return
+	}
+
+	var players []Player
+	err := db.Model(&players).Select()
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, v := range players {
+		B.Send(&tb.Chat{ID: int64(v.ID)}, m.ReplyTo.Text, tb.ModeHTML)
+	}
+
 }
 
 func hText(m *tb.Message) {
@@ -309,7 +351,7 @@ func hText(m *tb.Message) {
 			minGasPrice, _ := minterClient.MinGasPrice()
 			minGasPriceF, _ := strconv.ParseFloat(minGasPrice, 64)
 
-			message := fmt.Sprintf(GetText("race"), "💰 Ожидание ставки...", fmt.Sprintf(`
+			message := fmt.Sprintf(GetText("race"), "🐌 Ожидание ставки...", fmt.Sprintf(`
 Баланс: <b>%.2f BIP</b>
 Размер ставки - <b>50 BIP</b> + Комиссия - %.2f
 <b>Выигрыш - 100 BIP</b>`, bipBalance, minGasPriceF*0.01),
@@ -352,12 +394,25 @@ func GetText(fileName string) string {
 	return string(content)
 }
 
-func hBet(c *tb.Callback, betSnailName string) {
+func hBetNum(c *tb.Callback) {
 	B.Respond(c)
+	var betNum float64
 	var betka string
 
+	betSnailName := GetBetSnailName(c.Sender.ID)
+
+	if c.Data == "10" {
+		betNum = 10
+	} else if c.Data == "25" {
+		betNum = 25
+	} else if c.Data == "50" {
+		betNum = 50
+	} else if c.Data == "100" {
+		betNum = 100
+	}
+
 	address, key := GetWallet(c.Sender.ID)
-	result, err := SendCoin(50, address, appWallet, key)
+	result, err := SendCoin(betNum-float64(0.01), address, appWallet, key)
 	if err != nil {
 		fmt.Println("Ошибка отправки транзакции", err)
 		B.Send(c.Sender, "🤯 Не хватает средств? Загляни в раздел <b>💰 Кошелёк</b>", tb.ModeHTML)
@@ -458,19 +513,56 @@ func hBet(c *tb.Callback, betSnailName string) {
 	}
 }
 
+func hBet(c *tb.Callback, betSnailName string) {
+	B.Respond(c)
+	var betka string
+
+	SetBetSnailName(c.Sender.ID, betSnailName)
+
+	snails := [3]Snail{
+		{Adka: Random(1, 10), Base: "_________________________🍭", Name: "gary"},
+		{Adka: Random(1, 10), Base: "_________________________🍓", Name: "bonya"},
+		{Adka: Random(1, 10), Base: "_________________________🍏", Name: "vasya"},
+	}
+
+	if betSnailName == snails[0].Name {
+		betka = "Ставка: 🐌 <b>Гери</b> 🍭"
+	}
+	if betSnailName == snails[1].Name {
+		betka = "Ставка: 🐌 <b>Боня</b> 🍓"
+	}
+	if betSnailName == snails[2].Name {
+		betka = "Ставка: 🐌 <b>Вася</b> 🍏"
+	}
+
+	address, _ := GetWallet(c.Sender.ID)
+	bipBalance := GetBalance(address)
+
+	message := fmt.Sprintf(messageRace, "💰 Ожидание ставки...", fmt.Sprintf(`
+	Баланс: <b>%.2f BIP</b>
+	`+betka+`
+	Выигрыш - <b>Размер ставки X2</b>`, bipBalance),
+		snails[0].GetString(),
+		snails[1].GetString(),
+		snails[2].GetString(),
+	)
+	B.Edit(c.Message, message, InlineBetNum)
+}
+
 func hSnails(c *tb.Callback, snailName string) {
 	B.Respond(c)
 	B.Edit(c.Message, GetText(snailName), InlineSnails)
 }
 
 type Player struct {
-	ID         int
-	Address    string
-	PrivateKey string
-	WinCount   int `pg:"win_count,use_zero,notnull"`
-	LoseCount  int `pg:"lose_count,use_zero,notnull"`
-	BotState   string
-	OutAddress string
+	ID           int
+	Address      string
+	PrivateKey   string
+	WinCount     int `pg:"win_count,use_zero,notnull"`
+	LoseCount    int `pg:"lose_count,use_zero,notnull"`
+	BotState     string
+	OutAddress   string
+	BetSnailName string
 }
 
 func NewDefaultPlayer(id int) (Player, bool) {
@@ -546,6 +638,25 @@ func SetOutAddress(id int, outA string) {
 	p.OutAddress = outA
 
 	db.Model(p).Set("out_address = ?", p.OutAddress).Where("id = ?", p.ID).Update()
+}
+
+func GetBetSnailName(id int) string {
+	p := &Player{}
+	p.ID = id
+	err := db.Select(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return p.BetSnailName
+}
+
+func SetBetSnailName(id int, bsn string) {
+	p := &Player{}
+	p.ID = id
+	p.BetSnailName = bsn
+
+	db.Model(p).Set("bet_snail_name = ?", p.BetSnailName).Where("id = ?", p.ID).Update()
 }
 
 func GetBotState(id int) string {
