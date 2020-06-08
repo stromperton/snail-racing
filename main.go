@@ -230,9 +230,12 @@ func hCheck(m *tb.Message) {
 
 	hash := m.Payload
 
+	fmt.Println(hash)
+
 	h := sha3.NewLegacyKeccak256()
 	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(hash))))
 	rand.Seed(seed)
+	fmt.Println(seed)
 
 	snails := [3]Snail{
 		{Base: "_________________________🍭", Name: "gary"},
@@ -247,7 +250,7 @@ func hCheck(m *tb.Message) {
 	win := "nil"
 	var winnersArray []string
 
-	mess := fmt.Sprintf(messageRace, "<a href='https://explorer.minter.network/transactions/Mt"+hash+"'>Mt"+hash+"</a>", "",
+	mess := fmt.Sprintf(messageRace, "tt", "<a href='https://explorer.minter.network/transactions/Mt"+hash+"'>Mt"+hash+"</a>",
 		snails[0].GetString(),
 		snails[1].GetString(),
 		snails[2].GetString(),
