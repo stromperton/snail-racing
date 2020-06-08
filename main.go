@@ -147,7 +147,6 @@ func main() {
 
 	B.Handle("/start", hStart)
 	B.Handle("/sender", hSender)
-	B.Handle("/check", hCheck)
 	B.Handle(tb.OnText, hText)
 	B.Handle("\fGary", func(c *tb.Callback) { hSnails(c, "gary") })
 	B.Handle("\fBonya", func(c *tb.Callback) { hSnails(c, "bonya") })
@@ -161,6 +160,8 @@ func main() {
 
 	B.Handle("\fMoneyIn", hMoneyIn)
 	B.Handle("\fMoneyOut", hMoneyOut)
+
+	B.Handle("\fcheck", hCheck)
 
 	ConnectDataBase()
 	defer db.Close()
@@ -223,12 +224,10 @@ func hSender(m *tb.Message) {
 
 }
 
-func hCheck(m *tb.Message) {
-	if !m.Private() {
-		return
-	}
+func hCheck(c *tb.Callback) {
+	B.Respond(c)
 
-	hash := m.Payload
+	hash := c.Data
 
 	fmt.Println(hash)
 
@@ -507,7 +506,7 @@ func hBetNum(c *tb.Callback) {
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "Проверить заезд", URL: "https://t.me/" + B.Me.Username[0:] + "?check=" + result.Hash},
+					tb.InlineButton{Text: "Проверить заезд", Data: result.Hash, Unique: "Check"},
 				},
 			},
 		},
@@ -547,9 +546,9 @@ func hBetNum(c *tb.Callback) {
 		B.Edit(c.Message, message, inlineCheck)
 		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
-	B.Send(c.Sender, `Ты всегда можешь <a href='https://t.me/`+B.Me.Username[0:]+`?check=`+result.Hash+`'>проверить бота на честность</a>, посмотрев результат любой гонки.
-Отправь команду /check вместе с номером нужной транзакции
-Например: /check Mtx0x0x0x0x0x0x0x0x0x0x0x0x0x0x0`, tb.ModeHTML)
+	//B.Send(c.Sender, `Ты всегда можешь <a href='https://t.me/`+B.Me.Username[0:]+`?check=`+result.Hash+`'>проверить бота на честность</a>, посмотрев результат любой гонки.
+	//Отправь команду /check вместе с номером нужной транзакции
+	//Например: /check Mtx0x0x0x0x0x0x0x0x0x0x0x0x0x0x0`, tb.ModeHTML)
 	SetBotState(c.Sender.ID, "default")
 }
 
