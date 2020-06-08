@@ -18,7 +18,6 @@ func UpdateEvery(d time.Duration, f func()) {
 
 //Random Случайное чилсо от min до max [min; max)
 func Random(min, max int) int {
-	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(max-min) + min
 }
 

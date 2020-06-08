@@ -1,67 +1,29 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"math"
+	"math/rand"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/go-pg/pg/v9"
+	"golang.org/x/crypto/sha3"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-type Snail struct {
-	Name     string
-	Position int
-	Speed    int
-	Score    int
-	Adka     int
-	Base     string
-}
-
-func (s *Snail) GetString() string {
-	var out string
-	if s.Position == winPos {
-		out = "_________________________🐌🥇"
-	} else {
-		out = s.Base[:s.Position] + "🐌" + s.Base[s.Position:]
-
-	}
-	return out
-}
-
-func (s *Snail) Hodik() (bool, bool) {
-	randomka := Random(0, 100)
-
-	if randomka < changeSpeedProb {
-		s.Adka = Random(1, 10)
-	}
-
-	s.Score += s.Adka
-	//fmt.Println("Скоры "+s.Name+":", gary.Score)
-	if s.Score > maxScore {
-		s.Position++
-		s.Score = 0
-
-		if s.Position == winPos {
-			return true, true
-		}
-
-		return true, false
-	}
-	return false, false
-}
+const (
+	maxScore        = 200
+	winPos          = 26
+	changeSpeedProb = 1
+)
 
 var (
-	maxScore        int
-	winPos          int
-	changeSpeedProb int
-
-	appWallet string
-
+	appWallet   string
 	messageRace string
 )
 
@@ -166,12 +128,7 @@ func main() {
 		err       error
 	)
 
-	maxScore = GetInt("MAX_SCORE")
-	winPos = GetInt("WIN_POS")
-	changeSpeedProb = GetInt("CHANGE_SPEED_PROB")
-
 	appWallet = os.Getenv("APP_WALLET")
-
 	messageRace = GetText("race")
 
 	poller := &tb.Webhook{
@@ -190,6 +147,7 @@ func main() {
 
 	B.Handle("/start", hStart)
 	B.Handle("/sender", hSender)
+	B.Handle("/check", hCheck)
 	B.Handle(tb.OnText, hText)
 	B.Handle("\fGary", func(c *tb.Callback) { hSnails(c, "gary") })
 	B.Handle("\fBonya", func(c *tb.Callback) { hSnails(c, "bonya") })
@@ -265,6 +223,74 @@ func hSender(m *tb.Message) {
 
 }
 
+func hCheck(m *tb.Message) {
+	if !m.Private() {
+		return
+	}
+
+	hash := m.Payload
+
+	h := sha3.NewLegacyKeccak256()
+	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(hash))))
+	rand.Seed(seed)
+
+	snails := [3]Snail{
+		{Base: "_________________________🍭", Name: "gary"},
+		{Base: "_________________________🍓", Name: "bonya"},
+		{Base: "_________________________🍏", Name: "vasya"},
+	}
+
+	for i, _ := range snails {
+		snails[i].Adka = Random(1, 10)
+	}
+
+	win := "nil"
+	var winnersArray []string
+
+	mess := fmt.Sprintf(messageRace, "<a href='https://explorer.minter.network/transactions/Mt"+hash+"'>Mt"+hash+"</a>", "",
+		snails[0].GetString(),
+		snails[1].GetString(),
+		snails[2].GetString(),
+	)
+	mResult, _ := B.Send(m.Sender, mess, tb.ModeHTML)
+	for win == "nil" {
+
+		isUpdateMessage := false
+		for i := 0; i < 3; i++ {
+			isUpdate, winner := snails[i].Hodik()
+			if isUpdate {
+				isUpdateMessage = true
+			}
+			if winner {
+				winnersArray = append(winnersArray, snails[i].Name)
+			}
+		}
+
+		if len(winnersArray) > 0 {
+			winInd := Random(0, len(winnersArray))
+
+			for i, snailName := range winnersArray {
+				if i == winInd {
+					win = snailName
+				} else {
+					snails[i].Position--
+				}
+			}
+		}
+
+		if isUpdateMessage {
+			message := fmt.Sprintf(messageRace, "Mt"+hash,
+				snails[0].GetString(),
+				snails[1].GetString(),
+				snails[2].GetString(),
+			)
+			B.Edit(mResult, message, tb.ModeHTML)
+		}
+		time.Sleep(time.Millisecond * 10)
+
+	}
+}
+
 func hText(m *tb.Message) {
 	if !m.Private() {
 		return
@@ -336,18 +362,22 @@ func hText(m *tb.Message) {
 	} else {
 
 		if m.Text == "🏁 Гонка" {
-			defPos := 0
-			gary := Snail{Position: defPos, Base: "_________________________🍭"}
-			bonya := Snail{Position: defPos, Base: "_________________________🍓"}
-			vasya := Snail{Position: defPos, Base: "_________________________🍏"}
+			if GetBotState(m.Sender.ID) == "race" {
+				B.Send(m.Sender, "🤯 Гонка уже идёт!", tb.ModeHTML)
+			} else {
+				defPos := 0
+				gary := Snail{Position: defPos, Base: "_________________________🍭"}
+				bonya := Snail{Position: defPos, Base: "_________________________🍓"}
+				vasya := Snail{Position: defPos, Base: "_________________________🍏"}
 
-			message := fmt.Sprintf(GetText("race"), "🐌 Ожидание ставки...", "Кто победит? На кого будешь ставить?",
-				gary.GetString(),
-				bonya.GetString(),
-				vasya.GetString(),
-			)
+				message := fmt.Sprintf(GetText("race"), "🐌 Ожидание ставки...", "Кто победит? На кого будешь ставить?",
+					gary.GetString(),
+					bonya.GetString(),
+					vasya.GetString(),
+				)
 
-			B.Send(m.Sender, message, InlineBet)
+				B.Send(m.Sender, message, InlineBet)
+			}
 		} else if m.Text == "🐌 Улитки" {
 			message := fmt.Sprintf(GetText("gary"))
 
@@ -406,7 +436,12 @@ func hBetNum(c *tb.Callback) {
 		return
 	}
 
-	fmt.Println(result)
+	SetBotState(c.Sender.ID, "race")
+	fmt.Println("Ставка "+c.Data+" BIP ", result.Hash)
+
+	h := sha3.NewLegacyKeccak256()
+	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(result.Hash))))
+	rand.Seed(seed)
 
 	snails := [3]Snail{
 		{Adka: Random(1, 10), Base: "_________________________🍭", Name: "gary"},
@@ -464,6 +499,17 @@ func hBetNum(c *tb.Callback) {
 		}
 		time.Sleep(time.Millisecond * 10)
 	}
+	inlineCheck := &tb.SendOptions{
+		ParseMode: tb.ModeHTML,
+		ReplyMarkup: &tb.ReplyMarkup{
+			InlineKeyboard: [][]tb.InlineButton{
+				{
+					tb.InlineButton{Text: "Проверить заезд", URL: "https://t.me/" + B.Me.Username[1:] + "?check=" + result.Hash},
+				},
+			},
+		},
+	}
+
 	if win == betSnailName {
 		address, _ := GetWallet(c.Sender.ID)
 		result, err := SendCoin(betNum*2, appWallet, address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
@@ -480,7 +526,7 @@ func hBetNum(c *tb.Callback) {
 			snails[1].GetString(),
 			snails[2].GetString(),
 		)
-		B.Edit(c.Message, message, tb.ModeHTML)
+		B.Edit(c.Message, message, inlineCheck)
 		B.Send(c.Sender, "<b>🎉 Твоя ставка зашла!</b> <i>Не забудь поделиться с друзьями!</i>", tb.ModeHTML)
 
 		doWin(c.Sender.ID)
@@ -495,9 +541,13 @@ func hBetNum(c *tb.Callback) {
 			snails[1].GetString(),
 			snails[2].GetString(),
 		)
-		B.Edit(c.Message, message, tb.ModeHTML)
+		B.Edit(c.Message, message, inlineCheck)
 		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
+	B.Send(c.Sender, `Ты всегда можешь <a href='https://t.me/`+B.Me.Username[1:]+`?check=`+result.Hash+`'>проверить бота на честность</a>, посмотрев результат любой гонки.
+Отправь команду /check вместе с номером нужной транзакции
+Например: /check Mtx0x0x0x0x0x0x0x0x0x0x0x0x0x0x0`, tb.ModeHTML)
+	SetBotState(c.Sender.ID, "default")
 }
 
 func hBet(c *tb.Callback, betSnailName string) {
