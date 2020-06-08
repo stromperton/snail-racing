@@ -529,7 +529,8 @@ func hBetNum(c *tb.Callback) {
 			snails[1].GetString(),
 			snails[2].GetString(),
 		)
-		B.Edit(c.Message, message, inlineCheck)
+		_, err = B.Edit(c.Message, message, inlineCheck)
+		fmt.Println(err)
 		B.Send(c.Sender, "<b>🎉 Твоя ставка зашла!</b> <i>Не забудь поделиться с друзьями!</i>", tb.ModeHTML)
 
 		doWin(c.Sender.ID)
@@ -544,7 +545,8 @@ func hBetNum(c *tb.Callback) {
 			snails[1].GetString(),
 			snails[2].GetString(),
 		)
-		B.Edit(c.Message, message, inlineCheck)
+		_, err = B.Edit(c.Message, message, inlineCheck)
+		fmt.Println(err)
 		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
 	//B.Send(c.Sender, `Ты всегда можешь <a href='https://t.me/`+B.Me.Username[0:]+`?check=`+result.Hash+`'>проверить бота на честность</a>, посмотрев результат любой гонки.
