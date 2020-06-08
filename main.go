@@ -282,7 +282,7 @@ func hCheck(m *tb.Message) {
 		}
 
 		if isUpdateMessage {
-			message := fmt.Sprintf(messageRace, "Mt"+hash,
+			message := fmt.Sprintf(messageRace, "tt", "<a href='https://explorer.minter.network/transactions/Mt"+hash+"'>Mt"+hash+"</a>",
 				snails[0].GetString(),
 				snails[1].GetString(),
 				snails[2].GetString(),
@@ -507,7 +507,7 @@ func hBetNum(c *tb.Callback) {
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "Проверить заезд", URL: "https://t.me/" + B.Me.Username[1:] + "?check=" + result.Hash},
+					tb.InlineButton{Text: "Проверить заезд", URL: "https://t.me/" + B.Me.Username[0:] + "?check=" + result.Hash},
 				},
 			},
 		},
@@ -547,7 +547,7 @@ func hBetNum(c *tb.Callback) {
 		B.Edit(c.Message, message, inlineCheck)
 		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
-	B.Send(c.Sender, `Ты всегда можешь <a href='https://t.me/`+B.Me.Username[1:]+`?check=`+result.Hash+`'>проверить бота на честность</a>, посмотрев результат любой гонки.
+	B.Send(c.Sender, `Ты всегда можешь <a href='https://t.me/`+B.Me.Username[0:]+`?check=`+result.Hash+`'>проверить бота на честность</a>, посмотрев результат любой гонки.
 Отправь команду /check вместе с номером нужной транзакции
 Например: /check Mtx0x0x0x0x0x0x0x0x0x0x0x0x0x0x0`, tb.ModeHTML)
 	SetBotState(c.Sender.ID, "default")
