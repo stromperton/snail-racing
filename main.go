@@ -255,7 +255,7 @@ func hCheck(c *tb.Callback) {
 		snails[1].GetString(),
 		snails[2].GetString(),
 	)
-	mResult, _ := B.Edit(c.Message, mess, tb.ModeHTML)
+	B.Edit(c.Message, mess, tb.ModeHTML)
 	for win == "nil" {
 
 		isUpdateMessage := false
