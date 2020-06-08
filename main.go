@@ -439,11 +439,13 @@ func hBetNum(c *tb.Callback) {
 		return
 	}
 
+	hash := strings.ToLower(result.Hash)
+
 	SetBotState(c.Sender.ID, "race")
-	fmt.Println("Ставка "+c.Data+" BIP ", result.Hash)
+	fmt.Println("Ставка "+c.Data+" BIP ", hash)
 
 	h := sha3.NewLegacyKeccak256()
-	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(strings.ToLower(result.Hash)))))
+	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(hash))))
 	rand.Seed(seed)
 
 	snails := [3]Snail{
@@ -507,7 +509,7 @@ func hBetNum(c *tb.Callback) {
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "Проверить заезд", Data: result.Hash, Unique: "Check"},
+					tb.InlineButton{Text: "Проверить заезд", Data: hash, Unique: "Check"},
 				},
 			},
 		},
