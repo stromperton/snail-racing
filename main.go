@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-pg/pg/v9"
@@ -227,7 +228,7 @@ func hSender(m *tb.Message) {
 func hCheck(c *tb.Callback) {
 	B.Respond(c)
 
-	hash := c.Data
+	hash := strings.ToLower(c.Data)
 
 	fmt.Println(hash)
 
@@ -254,7 +255,7 @@ func hCheck(c *tb.Callback) {
 		snails[1].GetString(),
 		snails[2].GetString(),
 	)
-	mResult, _ := B.Send(c.Sender, mess, tb.ModeHTML)
+	mResult, _ := B.Edit(c.Message, mess, tb.ModeHTML)
 	for win == "nil" {
 
 		isUpdateMessage := false
@@ -286,7 +287,7 @@ func hCheck(c *tb.Callback) {
 				snails[1].GetString(),
 				snails[2].GetString(),
 			)
-			B.Edit(mResult, message, tb.ModeHTML)
+			B.Edit(c.Message, message, tb.ModeHTML)
 		}
 		time.Sleep(time.Millisecond * 10)
 
@@ -442,7 +443,7 @@ func hBetNum(c *tb.Callback) {
 	fmt.Println("Ставка "+c.Data+" BIP ", result.Hash)
 
 	h := sha3.NewLegacyKeccak256()
-	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(result.Hash))))
+	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(strings.ToLower(result.Hash)))))
 	rand.Seed(seed)
 
 	snails := [3]Snail{
