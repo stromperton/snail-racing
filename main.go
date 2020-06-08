@@ -161,7 +161,7 @@ func main() {
 	B.Handle("\fMoneyIn", hMoneyIn)
 	B.Handle("\fMoneyOut", hMoneyOut)
 
-	B.Handle("\fcheck", hCheck)
+	B.Handle("\fCheck", hCheck)
 
 	ConnectDataBase()
 	defer db.Close()
