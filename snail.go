@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type Snail struct {
 	Name     string
 	Position int
@@ -20,6 +22,7 @@ func (s *Snail) GetString() string {
 }
 
 func (s *Snail) Hodik() (bool, bool) {
+	fmt.Println(s)
 	randomka := Random(0, 100)
 
 	if randomka < changeSpeedProb {
