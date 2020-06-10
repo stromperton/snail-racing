@@ -228,14 +228,8 @@ func hSender(m *tb.Message) {
 func hCheck(c *tb.Callback) {
 	B.Respond(c)
 
-	hash := strings.ToLower(c.Data)
-
-	fmt.Println(hash)
-
-	h := sha3.NewLegacyKeccak256()
-	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(hash))))
+	seed, _ := strconv.ParseInt(c.Data, 10, 64)
 	rand.Seed(seed)
-	fmt.Println(seed)
 
 	snails := [3]Snail{
 		{Base: "_________________________🍭", Name: "gary"},
@@ -250,7 +244,7 @@ func hCheck(c *tb.Callback) {
 	win := "nil"
 	var winnersArray []string
 
-	mess := fmt.Sprintf(messageRace, "tt", "<a href='https://explorer.minter.network/transactions/Mt"+hash+"'>Mt"+hash+"</a>",
+	mess := fmt.Sprintf(messageRace, "tt", "ff",
 		snails[0].GetString(),
 		snails[1].GetString(),
 		snails[2].GetString(),
@@ -282,7 +276,7 @@ func hCheck(c *tb.Callback) {
 		}
 
 		if isUpdateMessage {
-			message := fmt.Sprintf(messageRace, "tt", "<a href='https://explorer.minter.network/transactions/Mt"+hash+"'>Mt"+hash+"</a>",
+			message := fmt.Sprintf(messageRace, "tt", "fsdfdf",
 				snails[0].GetString(),
 				snails[1].GetString(),
 				snails[2].GetString(),
@@ -509,7 +503,7 @@ func hBetNum(c *tb.Callback) {
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "Проверить заезд", Data: hash, Unique: "Check"},
+					tb.InlineButton{Text: "Проверка заезда", Data: strconv.FormatInt(seed, 10), Unique: "Check"},
 				},
 			},
 		},
@@ -531,7 +525,7 @@ func hBetNum(c *tb.Callback) {
 			snails[1].GetString(),
 			snails[2].GetString(),
 		)
-		_, err = B.Edit(c.Message, message, inlineCheck)
+		_, err = B.Edit(c.Message, message, tb.ModeHTML)
 		fmt.Println(err)
 		B.Send(c.Sender, "<b>🎉 Твоя ставка зашла!</b> <i>Не забудь поделиться с друзьями!</i>", tb.ModeHTML)
 
@@ -547,13 +541,12 @@ func hBetNum(c *tb.Callback) {
 			snails[1].GetString(),
 			snails[2].GetString(),
 		)
-		_, err = B.Edit(c.Message, message, inlineCheck)
+		_, err = B.Edit(c.Message, message, tb.ModeHTML)
 		fmt.Println(err)
 		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
-	//B.Send(c.Sender, `Ты всегда можешь <a href='https://t.me/`+B.Me.Username[0:]+`?check=`+result.Hash+`'>проверить бота на честность</a>, посмотрев результат любой гонки.
-	//Отправь команду /check вместе с номером нужной транзакции
-	//Например: /check Mtx0x0x0x0x0x0x0x0x0x0x0x0x0x0x0`, tb.ModeHTML)
+	B.Send(c.Sender, "Ты всегда можешь <a href='https://play.golang.org/p/2uElqjxMZca'>проверить бота на честность</a>, используя транзакцию заезда:", tb.ModeHTML)
+	B.Send(c.Sender, "<a href='https://explorer.minter.network/transactions/Mt"+hash+"'>Mt"+hash+"</a>", inlineCheck)
 	SetBotState(c.Sender.ID, "default")
 }
 
