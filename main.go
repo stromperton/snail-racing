@@ -229,8 +229,7 @@ func hCheck(c *tb.Callback) {
 	B.Respond(c)
 
 	seed, _ := strconv.ParseInt(c.Data, 10, 64)
-	rand.Seed(seed)
-	fmt.Println(seed)
+	myR := rand.New(rand.NewSource(seed))
 
 	snails := [3]Snail{
 		{Base: "_________________________🍭", Name: "gary"},
@@ -239,7 +238,7 @@ func hCheck(c *tb.Callback) {
 	}
 
 	for i, _ := range snails {
-		snails[i].Adka = Random(1, 10)
+		snails[i].Adka = Random(myR, 1, 10)
 	}
 
 	win := "nil"
@@ -255,7 +254,7 @@ func hCheck(c *tb.Callback) {
 
 		isUpdateMessage := false
 		for i := 0; i < 3; i++ {
-			isUpdate, winner := snails[i].Hodik()
+			isUpdate, winner := snails[i].Hodik(myR)
 			if isUpdate {
 				isUpdateMessage = true
 			}
@@ -265,7 +264,7 @@ func hCheck(c *tb.Callback) {
 		}
 
 		if len(winnersArray) > 0 {
-			winInd := Random(0, len(winnersArray))
+			winInd := Random(myR, 0, len(winnersArray))
 
 			for i, snailName := range winnersArray {
 				if i == winInd {
@@ -458,13 +457,12 @@ func hBetNum(c *tb.Callback) {
 
 	h := sha3.NewLegacyKeccak256()
 	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(hash))))
-	rand.Seed(seed)
-	fmt.Println(seed)
+	myR := rand.New(rand.NewSource(seed))
 
 	snails := [3]Snail{
-		{Adka: Random(1, 10), Base: "_________________________🍭", Name: "gary"},
-		{Adka: Random(1, 10), Base: "_________________________🍓", Name: "bonya"},
-		{Adka: Random(1, 10), Base: "_________________________🍏", Name: "vasya"},
+		{Adka: Random(myR, 1, 10), Base: "_________________________🍭", Name: "gary"},
+		{Adka: Random(myR, 1, 10), Base: "_________________________🍓", Name: "bonya"},
+		{Adka: Random(myR, 1, 10), Base: "_________________________🍏", Name: "vasya"},
 	}
 
 	if betSnailName == snails[0].Name {
@@ -483,7 +481,7 @@ func hBetNum(c *tb.Callback) {
 
 		isUpdateMessage := false
 		for i := 0; i < 3; i++ {
-			isUpdate, winner := snails[i].Hodik()
+			isUpdate, winner := snails[i].Hodik(myR)
 			if isUpdate {
 				isUpdateMessage = true
 			}
@@ -493,7 +491,7 @@ func hBetNum(c *tb.Callback) {
 		}
 
 		if len(winnersArray) > 0 {
-			winInd := Random(0, len(winnersArray))
+			winInd := Random(myR, 0, len(winnersArray))
 
 			for i, snailName := range winnersArray {
 				if i == winInd {
@@ -577,9 +575,9 @@ func hBet(c *tb.Callback, betSnailName string) {
 	SetBetSnailName(c.Sender.ID, betSnailName)
 
 	snails := [3]Snail{
-		{Adka: Random(1, 10), Base: "_________________________🍭", Name: "gary"},
-		{Adka: Random(1, 10), Base: "_________________________🍓", Name: "bonya"},
-		{Adka: Random(1, 10), Base: "_________________________🍏", Name: "vasya"},
+		{Base: "_________________________🍭", Name: "gary"},
+		{Base: "_________________________🍓", Name: "bonya"},
+		{Base: "_________________________🍏", Name: "vasya"},
 	}
 
 	if betSnailName == snails[0].Name {

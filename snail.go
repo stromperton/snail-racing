@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 type Snail struct {
 	Name     string
@@ -21,12 +24,12 @@ func (s *Snail) GetString() string {
 	return out
 }
 
-func (s *Snail) Hodik() (bool, bool) {
+func (s *Snail) Hodik(myR *rand.Rand) (bool, bool) {
 	fmt.Println(s)
-	randomka := Random(0, 100)
+	randomka := Random(myR, 0, 100)
 
 	if randomka < changeSpeedProb {
-		s.Adka = Random(1, 10)
+		s.Adka = Random(myR, 1, 10)
 	}
 
 	s.Score += s.Adka

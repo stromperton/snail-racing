@@ -17,8 +17,8 @@ func UpdateEvery(d time.Duration, f func()) {
 }
 
 //Random Случайное чилсо от min до max [min; max)
-func Random(min, max int) int {
-	return rand.Intn(max-min) + min
+func Random(myR *rand.Rand, min, max int) int {
+	return myR.Intn(max-min) + min
 }
 
 func GetInt(key string) int {
