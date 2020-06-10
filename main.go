@@ -499,7 +499,8 @@ func hBetNum(c *tb.Callback) {
 		time.Sleep(time.Millisecond * 10)
 	}
 	inlineCheck := &tb.SendOptions{
-		ParseMode: tb.ModeHTML,
+		ParseMode:             tb.ModeHTML,
+		DisableWebPagePreview: true,
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
@@ -546,7 +547,7 @@ func hBetNum(c *tb.Callback) {
 		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
 	B.Send(c.Sender, "Ты всегда можешь <a href='https://play.golang.org/p/2uElqjxMZca'>проверить бота на честность</a>, используя транзакцию заезда:", tb.ModeHTML)
-	B.Send(c.Sender, "<a href='https://explorer.minter.network/transactions/Mt"+hash+"'>Mt"+hash+"</a>", inlineCheck)
+	B.Send(c.Sender, "<b>"+hash+"</b>", inlineCheck)
 	SetBotState(c.Sender.ID, "default")
 }
 
