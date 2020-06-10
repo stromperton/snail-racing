@@ -230,6 +230,7 @@ func hCheck(c *tb.Callback) {
 
 	seed, _ := strconv.ParseInt(c.Data, 10, 64)
 	rand.Seed(seed)
+	fmt.Println(seed)
 
 	snails := [3]Snail{
 		{Base: "_________________________🍭", Name: "gary"},
@@ -441,6 +442,7 @@ func hBetNum(c *tb.Callback) {
 	h := sha3.NewLegacyKeccak256()
 	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(hash))))
 	rand.Seed(seed)
+	fmt.Println(seed)
 
 	snails := [3]Snail{
 		{Adka: Random(1, 10), Base: "_________________________🍭", Name: "gary"},
