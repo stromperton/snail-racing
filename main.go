@@ -287,6 +287,23 @@ func hCheck(c *tb.Callback) {
 		time.Sleep(time.Millisecond * 10)
 
 	}
+	inlineCheck := &tb.SendOptions{
+		ParseMode:             tb.ModeHTML,
+		DisableWebPagePreview: true,
+		ReplyMarkup: &tb.ReplyMarkup{
+			InlineKeyboard: [][]tb.InlineButton{
+				{
+					tb.InlineButton{Text: "Проверка заезда", Data: strconv.FormatInt(seed, 10), Unique: "Check"},
+				},
+			},
+		},
+	}
+	message := fmt.Sprintf(messageRace, "tt", "fsdfdf",
+		snails[0].GetString(),
+		snails[1].GetString(),
+		snails[2].GetString(),
+	)
+	B.Edit(c.Message, message, inlineCheck)
 }
 
 func hText(m *tb.Message) {
@@ -549,7 +566,7 @@ func hBetNum(c *tb.Callback) {
 		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
 	B.Send(c.Sender, "Ты всегда можешь <a href='https://play.golang.org/p/2uElqjxMZca'>проверить бота на честность</a>, используя транзакцию заезда:", tb.ModeHTML)
-	B.Send(c.Sender, "<b>"+hash+"</b>", inlineCheck)
+	B.Send(c.Sender, "<b>Mt"+hash+"</b>", inlineCheck)
 	SetBotState(c.Sender.ID, "default")
 }
 
