@@ -112,6 +112,9 @@ var (
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
+					tb.InlineButton{Text: "😛 Халява", Unique: "MoneyGive"},
+				},
+				{
 					tb.InlineButton{Text: "📥 Пополнить", Unique: "MoneyIn"},
 					tb.InlineButton{Text: "📤 Вывести", Unique: "MoneyOut"},
 				},
@@ -161,8 +164,6 @@ func main() {
 
 	B.Handle("\fMoneyIn", hMoneyIn)
 	B.Handle("\fMoneyOut", hMoneyOut)
-
-	B.Handle("\fCheck", hCheck)
 
 	ConnectDataBase()
 	defer db.Close()
@@ -225,6 +226,7 @@ func hSender(m *tb.Message) {
 
 }
 
+/*
 func hCheck(c *tb.Callback) {
 	B.Respond(c)
 
@@ -303,7 +305,7 @@ func hCheck(c *tb.Callback) {
 		snails[2].GetString(),
 	)
 	B.Edit(c.Message, message, inlineCheck)
-}
+}*/
 
 func hText(m *tb.Message) {
 	if !m.Private() {
@@ -515,7 +517,7 @@ func hBetNum(c *tb.Callback) {
 		}
 		time.Sleep(time.Millisecond * 10)
 	}
-	inlineCheck := &tb.SendOptions{
+	/*inlineCheck := &tb.SendOptions{
 		ParseMode:             tb.ModeHTML,
 		DisableWebPagePreview: true,
 		ReplyMarkup: &tb.ReplyMarkup{
@@ -525,7 +527,7 @@ func hBetNum(c *tb.Callback) {
 				},
 			},
 		},
-	}
+	}*/
 
 	if win == betSnailName {
 		address, _ := GetWallet(c.Sender.ID)
@@ -564,7 +566,7 @@ func hBetNum(c *tb.Callback) {
 		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
 	B.Send(c.Sender, "Ты всегда можешь <a href='https://play.golang.org/p/2uElqjxMZca'>проверить бота на честность</a>, используя транзакцию заезда:", tb.ModeHTML)
-	B.Send(c.Sender, "<b>Mt"+hash+"</b>", inlineCheck)
+	B.Send(c.Sender, "<code>Mt"+hash+"</code>", tb.ModeHTML)
 	SetBotState(c.Sender.ID, "default")
 }
 
