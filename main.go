@@ -382,8 +382,10 @@ func hText(m *tb.Message) {
 			if GetBotState(m.Sender.ID) == "race" {
 				B.Send(m.Sender, "🤯 Гонка уже идёт!", tb.ModeHTML)
 			} else {
-				B.EditReplyMarkup(GetLastRaceMessage(m.Sender.ID), &tb.ReplyMarkup{})
-
+				lastRaceMessage := GetLastRaceMessage(m.Sender.ID)
+				if lastRaceMessage != nil {
+					B.EditReplyMarkup(lastRaceMessage, &tb.ReplyMarkup{})
+				}
 				defPos := 0
 				gary := Snail{Position: defPos, Base: "_________________________🍭"}
 				bonya := Snail{Position: defPos, Base: "_________________________🍓"}
@@ -395,7 +397,7 @@ func hText(m *tb.Message) {
 					vasya.GetString(),
 				)
 
-				lastRaceMessage, _ := B.Send(m.Sender, message, InlineBet)
+				lastRaceMessage, _ = B.Send(m.Sender, message, InlineBet)
 				SetLastRaceMessage(m.Sender.ID, lastRaceMessage)
 			}
 		} else if m.Text == "🐌 Улитки" {
