@@ -382,6 +382,8 @@ func hText(m *tb.Message) {
 			if GetBotState(m.Sender.ID) == "race" {
 				B.Send(m.Sender, "🤯 Гонка уже идёт!", tb.ModeHTML)
 			} else {
+				B.EditReplyMarkup(GetLastRaceMessage(m.Sender.ID), &tb.ReplyMarkup{})
+
 				defPos := 0
 				gary := Snail{Position: defPos, Base: "_________________________🍭"}
 				bonya := Snail{Position: defPos, Base: "_________________________🍓"}
@@ -393,7 +395,8 @@ func hText(m *tb.Message) {
 					vasya.GetString(),
 				)
 
-				B.Send(m.Sender, message, InlineBet)
+				lastRaceMessage, _ := B.Send(m.Sender, message, InlineBet)
+				SetLastRaceMessage(m.Sender.ID, lastRaceMessage)
 			}
 		} else if m.Text == "🐌 Улитки" {
 			message := fmt.Sprintf(GetText("gary"))
@@ -615,14 +618,15 @@ func hSnails(c *tb.Callback, snailName string) {
 }
 
 type Player struct {
-	ID           int
-	Address      string
-	PrivateKey   string
-	WinCount     int `pg:"win_count,use_zero,notnull"`
-	LoseCount    int `pg:"lose_count,use_zero,notnull"`
-	BotState     string
-	OutAddress   string
-	BetSnailName string
+	ID              int
+	Address         string
+	PrivateKey      string
+	WinCount        int `pg:"win_count,use_zero,notnull"`
+	LoseCount       int `pg:"lose_count,use_zero,notnull"`
+	BotState        string
+	OutAddress      string
+	BetSnailName    string
+	LastRaceMessage *tb.Message
 }
 
 func NewDefaultPlayer(id int) (Player, bool) {
@@ -709,6 +713,24 @@ func GetBetSnailName(id int) string {
 	}
 
 	return p.BetSnailName
+}
+
+func GetLastRaceMessage(id int) *tb.Message {
+	p := &Player{}
+	p.ID = id
+	err := db.Select(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return p.LastRaceMessage
+}
+
+func SetLastRaceMessage(id int, message *tb.Message) {
+	p := &Player{}
+	p.LastRaceMessage = message
+
+	db.Model(p).Set("last_race_message = ?", p.LastRaceMessage).Where("id = ?", p.ID).Update()
 }
 
 func SetBetSnailName(id int, bsn string) {
