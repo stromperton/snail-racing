@@ -517,17 +517,19 @@ func hBetNum(c *tb.Callback) {
 		}
 		time.Sleep(time.Millisecond * 10)
 	}
-	/*inlineCheck := &tb.SendOptions{
+	inlineCheck := &tb.SendOptions{
 		ParseMode:             tb.ModeHTML,
 		DisableWebPagePreview: true,
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "Проверка заезда", Data: strconv.FormatInt(seed, 10), Unique: "Check"},
+					tb.InlineButton{Text: "Проверка заезда", URL: "https://play.golang.org/p/Sc5JMnGFnIv"},
 				},
 			},
 		},
-	}*/
+	}
+
+	B.Send(c.Sender, "<code>Mt"+hash+"</code>", inlineCheck)
 
 	if win == betSnailName {
 		address, _ := GetWallet(c.Sender.ID)
@@ -565,8 +567,8 @@ func hBetNum(c *tb.Callback) {
 		fmt.Println(err)
 		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
-	B.Send(c.Sender, "Ты всегда можешь <a href='https://play.golang.org/p/2uElqjxMZca'>проверить бота на честность</a>, используя транзакцию заезда:", tb.ModeHTML)
-	B.Send(c.Sender, "<code>Mt"+hash+"</code>", tb.ModeHTML)
+	//B.Send(c.Sender, "Ты всегда можешь <a href='https://play.golang.org/p/2uElqjxMZca'>проверить бота на честность</a>, используя транзакцию заезда:", tb.ModeHTML)
+
 	SetBotState(c.Sender.ID, "default")
 }
 

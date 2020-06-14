@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 )
 
@@ -25,7 +24,6 @@ func (s *Snail) GetString() string {
 }
 
 func (s *Snail) Hodik(myR *rand.Rand) (bool, bool) {
-	fmt.Println(s)
 	randomka := Random(myR, 0, 100)
 
 	if randomka < changeSpeedProb {
