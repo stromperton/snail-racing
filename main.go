@@ -730,6 +730,7 @@ func GetLastRaceMessage(id int) *tb.Message {
 
 func SetLastRaceMessage(id int, message *tb.Message) {
 	p := &Player{}
+	p.ID = id
 	p.LastRaceMessage = message
 
 	db.Model(p).Set("last_race_message = ?", p.LastRaceMessage).Where("id = ?", p.ID).Update()
