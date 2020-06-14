@@ -384,7 +384,10 @@ func hText(m *tb.Message) {
 			} else {
 				lastRaceMessage := GetLastRaceMessage(m.Sender.ID)
 				if lastRaceMessage != nil {
-					B.EditReplyMarkup(lastRaceMessage, &tb.ReplyMarkup{})
+					_, err := B.EditReplyMarkup(lastRaceMessage, nil)
+					if err != nil {
+						fmt.Println("Ну шо же", err)
+					}
 				}
 				defPos := 0
 				gary := Snail{Position: defPos, Base: "_________________________🍭"}
