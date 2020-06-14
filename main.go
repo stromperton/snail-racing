@@ -108,7 +108,8 @@ var (
 	}
 
 	InlineMoney = &tb.SendOptions{
-		ParseMode: tb.ModeHTML,
+		ParseMode:             tb.ModeHTML,
+		DisableWebPagePreview: true,
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
