@@ -458,12 +458,13 @@ func hText(m *tb.Message) {
 			B.Send(m.Sender, message, InlineSnails)
 		} else if m.Text == "💰 Кошелёк" {
 			winC, _ := GetRate(m.Sender.ID)
+			hal := GetHaliava(m.Sender.ID)
 
 			address, _ := GetWallet(m.Sender.ID)
 			bipBalance := GetBalance(address)
 			usdBalance := GetBipPrice() * bipBalance
 
-			message := fmt.Sprintf(GetText("winrate"), math.Round(bipBalance*100)/100, math.Round(usdBalance*100)/100, winC)
+			message := fmt.Sprintf(GetText("winrate"), math.Round(bipBalance*100)/100, math.Round(usdBalance*100)/100, hal, winC)
 
 			B.Send(m.Sender, message, InlineMoney)
 		} else if m.Text == "❓ Помощь" {
@@ -693,11 +694,13 @@ func hBet(c *tb.Callback, betSnailName string) {
 
 	address, _ := GetWallet(c.Sender.ID)
 	bipBalance := GetBalance(address)
+	hal := GetHaliava(c.Sender.ID)
 
 	message := fmt.Sprintf(messageRace, "💰 Ожидание ставки...", fmt.Sprintf(`
 	Баланс: <b>%.2f BIP</b>
+	Халява: <b>%d</b> 
 	`+betka+`
-	Выигрыш = <b>Размер ставки × 2</b>`, bipBalance),
+	Выигрыш = <b>Размер ставки × 2</b>`, bipBalance, hal),
 		snails[0].GetString(),
 		snails[1].GetString(),
 		snails[2].GetString(),
