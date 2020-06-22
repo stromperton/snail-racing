@@ -483,28 +483,31 @@ func hBetNum(c *tb.Callback) {
 
 	betSnailName := GetBetSnailName(c.Sender.ID)
 
-	if c.Data == "BetNum|10" {
+	if c.Data == "10" {
 		betNum = 10
-	} else if c.Data == "BetNum|25" {
+	} else if c.Data == "25" {
 		betNum = 25
-	} else if c.Data == "BetNum|50" {
+	} else if c.Data == "50" {
 		betNum = 50
-	} else if c.Data == "BetNum|100" {
+	} else if c.Data == "100" {
 		betNum = 100
-	} else if c.Data == "BetNum|haliava" {
+	} else if c.Data == "haliava" {
 		B.EditReplyMarkup(c.Message, InlineBetNumHaliava.ReplyMarkup)
 		return
-	} else if c.Data == "BetNum|monety" {
+	} else if c.Data == "monety" {
 		B.EditReplyMarkup(c.Message, InlineBetNum.ReplyMarkup)
 		return
-	} else if c.Data == "BetNum|1h" {
+	} else if c.Data == "1h" {
 		betNumHaliava = 1
-	} else if c.Data == "BetNum|5h" {
+	} else if c.Data == "5h" {
 		betNumHaliava = 5
-	} else if c.Data == "BetNum|10h" {
+	} else if c.Data == "10h" {
 		betNumHaliava = 10
-	} else if c.Data == "BetNum|50h" {
+	} else if c.Data == "50h" {
 		betNumHaliava = 50
+	} else {
+		B.Send(c.Sender, "🤯 Что-то пошло не так", tb.ModeHTML)
+		return
 	}
 
 	if betNum > 0 {
