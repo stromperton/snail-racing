@@ -483,7 +483,7 @@ func hBetNum(c *tb.Callback) {
 	var jjj string
 
 	betSnailName := GetBetSnailName(c.Sender.ID)
-
+	fmt.Println(c.Data[0])
 	if c.Data[0] == ' ' {
 		jjj = c.Data[7:]
 	} else {
