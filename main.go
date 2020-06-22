@@ -227,7 +227,7 @@ func hMoneyGive(c *tb.Callback) {
 <b>Например</b>
 По ссылке Саши в бота зашли 10 человек. Предположим, что все они не сильно азартны и каждый сыграл всего по 3 раза.
 Итого Саша получает <b>30 бесплатных</b> билетов. Если играть на них, то, согласно теории вероятности, сумма выигрышей составит примерно <code>30 * 1/3 * 10 = </code><b>100 BIP<b>
-Таким образом Саша получает по <b>10 BIP с каждого</b> привлеченного игрока`)
+Таким образом Саша получает по <b>10 BIP с каждого</b> привлеченного игрока`, tb.ModeHTML)
 }
 
 func hStart(m *tb.Message) {
@@ -483,27 +483,27 @@ func hBetNum(c *tb.Callback) {
 
 	betSnailName := GetBetSnailName(c.Sender.ID)
 
-	if c.Data == "10" {
+	if c.Data == "BetNum|10" {
 		betNum = 10
-	} else if c.Data == "25" {
+	} else if c.Data == "BetNum|25" {
 		betNum = 25
-	} else if c.Data == "50" {
+	} else if c.Data == "BetNum|50" {
 		betNum = 50
-	} else if c.Data == "100" {
+	} else if c.Data == "BetNum|100" {
 		betNum = 100
-	} else if c.Data == "haliava" {
+	} else if c.Data == "BetNum|haliava" {
 		B.EditReplyMarkup(c.Message, InlineBetNumHaliava.ReplyMarkup)
 		return
-	} else if c.Data == "monety" {
+	} else if c.Data == "BetNum|monety" {
 		B.EditReplyMarkup(c.Message, InlineBetNum.ReplyMarkup)
 		return
-	} else if c.Data == "1h" {
+	} else if c.Data == "BetNum|1h" {
 		betNumHaliava = 1
-	} else if c.Data == "5h" {
+	} else if c.Data == "BetNum|5h" {
 		betNumHaliava = 5
-	} else if c.Data == "10h" {
+	} else if c.Data == "BetNum|10h" {
 		betNumHaliava = 10
-	} else if c.Data == "50h" {
+	} else if c.Data == "BetNum|50h" {
 		betNumHaliava = 50
 	}
 
@@ -711,7 +711,7 @@ type Player struct {
 	BetSnailName    string
 	LastRaceMessage *tb.Message
 
-	Haliava int
+	Haliava int `pg:"haliava,use_zero,notnull"`
 }
 
 func NewDefaultPlayer(id int) (Player, bool) {
