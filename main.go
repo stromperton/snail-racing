@@ -101,15 +101,15 @@ var (
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "1 🤑", Unique: "BetNum", Data: "1h"},
+					tb.InlineButton{Text: "🤑 1", Unique: "BetNum", Data: "1h"},
 					tb.InlineButton{Text: "5 🤑", Unique: "BetNum", Data: "5h"},
 				},
 				{
-					tb.InlineButton{Text: "10 🤑", Unique: "BetNum", Data: "10h"},
+					tb.InlineButton{Text: "🤑 10", Unique: "BetNum", Data: "10h"},
 					tb.InlineButton{Text: "50 🤑", Unique: "BetNum", Data: "50h"},
 				},
 				{
-					tb.InlineButton{Text: "🤑 Монеты", Unique: "Monety"},
+					tb.InlineButton{Text: "💰 Монеты", Unique: "Monety"},
 				},
 			},
 		},
