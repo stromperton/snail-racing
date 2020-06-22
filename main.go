@@ -91,7 +91,7 @@ var (
 					tb.InlineButton{Text: "100 BIP", Unique: "BetNum", Data: "100"},
 				},
 				{
-					tb.InlineButton{Text: "🤑 Халява", Unique: "BetNum", Data: "haliava"},
+					tb.InlineButton{Text: "🤑 Халява", Unique: "Haliava"},
 				},
 			},
 		},
@@ -109,7 +109,7 @@ var (
 					tb.InlineButton{Text: "50 🤑", Unique: "BetNum", Data: "50h"},
 				},
 				{
-					tb.InlineButton{Text: "🤑 Монеты", Unique: "BetNum", Data: "monety"},
+					tb.InlineButton{Text: "🤑 Монеты", Unique: "Monety"},
 				},
 			},
 		},
@@ -188,10 +188,22 @@ func main() {
 	B.Handle("\fMoneyOut", hMoneyOut)
 	B.Handle("\fMoneyGive", hMoneyGive)
 
+	B.Handle("\fMonety", hMonety)
+	B.Handle("\fHaliava", hHaliava)
+
 	ConnectDataBase()
 	defer db.Close()
 
 	B.Start()
+}
+
+func hMonety(c *tb.Callback) {
+	B.Respond(c)
+	B.EditReplyMarkup(c.Message, InlineBetNum.ReplyMarkup)
+}
+func hHaliava(c *tb.Callback) {
+	B.Respond(c)
+	B.EditReplyMarkup(c.Message, InlineBetNumHaliava.ReplyMarkup)
 }
 
 func hMoneyIn(c *tb.Callback) {
@@ -492,12 +504,6 @@ func hBetNum(c *tb.Callback) {
 		betNum = 50
 	case "100":
 		betNum = 100
-	case "haliava":
-		B.Edit(c.Message, "", InlineBetNumHaliava)
-		return
-	case "monety":
-		B.Edit(c.Message, "", InlineBetNum)
-		return
 	case "1h":
 		betNumHaliava = 1
 	case "5h":
