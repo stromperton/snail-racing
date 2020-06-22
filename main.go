@@ -483,6 +483,8 @@ func hBetNum(c *tb.Callback) {
 
 	betSnailName := GetBetSnailName(c.Sender.ID)
 
+	B.Send(c.Sender, c.Data, tb.ModeHTML)
+
 	if c.Data == "10" {
 		betNum = 10
 	} else if c.Data == "25" {
