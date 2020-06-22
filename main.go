@@ -485,31 +485,29 @@ func hBetNum(c *tb.Callback) {
 
 	B.Send(c.Sender, c.Data, tb.ModeHTML)
 
-	if c.Data == "10" {
+	switch c.Data {
+	case "10":
 		betNum = 10
-	} else if c.Data == "25" {
+	case "25":
 		betNum = 25
-	} else if c.Data == "50" {
+	case "50":
 		betNum = 50
-	} else if c.Data == "100" {
+	case "100":
 		betNum = 100
-	} else if c.Data == "haliava" {
+	case "haliava":
 		B.EditReplyMarkup(c.Message, InlineBetNumHaliava.ReplyMarkup)
-		return
-	} else if c.Data == "monety" {
+	case "monety":
 		B.EditReplyMarkup(c.Message, InlineBetNum.ReplyMarkup)
-		return
-	} else if c.Data == "1h" {
+	case "1h":
 		betNumHaliava = 1
-	} else if c.Data == "5h" {
+	case "5h":
 		betNumHaliava = 5
-	} else if c.Data == "10h" {
+	case "10h":
 		betNumHaliava = 10
-	} else if c.Data == "50h" {
+	case "50h":
 		betNumHaliava = 50
-	} else {
+	default:
 		B.Send(c.Sender, "🤯 Что-то пошло не так "+c.Data, tb.ModeHTML)
-		return
 	}
 
 	if betNum > 0 {
