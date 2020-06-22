@@ -90,6 +90,27 @@ var (
 					tb.InlineButton{Text: "50 BIP", Unique: "BetNum", Data: "50"},
 					tb.InlineButton{Text: "100 BIP", Unique: "BetNum", Data: "100"},
 				},
+				{
+					tb.InlineButton{Text: "🤑 Халява", Unique: "BetNum", Data: "haliava"},
+				},
+			},
+		},
+	}
+	InlineBetNumHaliava = &tb.SendOptions{
+		ParseMode: tb.ModeHTML,
+		ReplyMarkup: &tb.ReplyMarkup{
+			InlineKeyboard: [][]tb.InlineButton{
+				{
+					tb.InlineButton{Text: "1 🤑", Unique: "BetNum", Data: "1h"},
+					tb.InlineButton{Text: "5 🤑", Unique: "BetNum", Data: "5h"},
+				},
+				{
+					tb.InlineButton{Text: "10 🤑", Unique: "BetNum", Data: "10h"},
+					tb.InlineButton{Text: "50 🤑", Unique: "BetNum", Data: "50h"},
+				},
+				{
+					tb.InlineButton{Text: "🤑 Монеты", Unique: "BetNum", Data: "monety"},
+				},
 			},
 		},
 	}
@@ -113,7 +134,7 @@ var (
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "😛 Халява", Unique: "MoneyGive"},
+					tb.InlineButton{Text: "🤑 Халява", Unique: "MoneyGive"},
 				},
 				{
 					tb.InlineButton{Text: "📥 Пополнить", Unique: "MoneyIn"},
@@ -165,6 +186,7 @@ func main() {
 
 	B.Handle("\fMoneyIn", hMoneyIn)
 	B.Handle("\fMoneyOut", hMoneyOut)
+	B.Handle("\fMoneyGive", hMoneyGive)
 
 	ConnectDataBase()
 	defer db.Close()
@@ -183,14 +205,29 @@ func hMoneyOut(c *tb.Callback) {
 	B.Respond(c)
 
 	address, _ := GetWallet(c.Sender.ID)
-	if GetBalance(address) < 40.01 {
+	if GetBalance(address) < 10.01 {
 		B.Send(c.Sender, `🤯 Недостаточно средств для вывода!
-<b>Минимальная сумма вывода:</b> 40 BIP`)
+<b>Минимальная сумма вывода:</b> 10 BIP`, tb.ModeHTML)
 	} else {
 
 		SetBotState(c.Sender.ID, "MinterAddressSend")
 		B.Send(c.Sender, "💰 Куда будем отправлять монетки? <b>Пришли свой адрес в сети Minter</b>", &tb.SendOptions{ParseMode: tb.ModeHTML, ReplyMarkup: &tb.ReplyMarkup{ReplyKeyboardRemove: true}})
 	}
+}
+
+func hMoneyGive(c *tb.Callback) {
+	B.Respond(c)
+
+	B.Send(c.Sender, `<b>Хочешь получить халяву?</b>
+<i>Расскажи о боте друзьям!</i>
+	
+<b>За каждую ставку</b> твоих друзей ты получишь <b>один халявный заезд</b>
+с возможностью выиграть <b>10 BIP</b>
+
+<b>Например</b>
+По ссылке Саши в бота зашли 10 человек. Предположим, что все они не сильно азартны и каждый сыграл всего по 3 раза.
+Итого Саша получает <b>30 бесплатных</b> билетов. Если играть на них, то, согласно теории вероятности, сумма выигрышей составит примерно <code>30 * 1/3 * 10 = </code><b>100 BIP<b>
+Таким образом Саша получает по <b>10 BIP с каждого</b> привлеченного игрока`)
 }
 
 func hStart(m *tb.Message) {
@@ -333,7 +370,7 @@ func hText(m *tb.Message) {
 			B.Send(m.Sender, "❌ Вывод прерван", ReplyMain)
 		} else {
 			flyt, err := strconv.ParseFloat(m.Text, 64)
-			if err != nil || flyt < 20 {
+			if err != nil || flyt < 10 {
 				B.Send(m.Sender, "🤯 Что-то не так... Нужно просто отправить число монет", ReplyMain)
 			} else {
 				adress, prKey := GetWallet(m.Sender.ID)
@@ -370,7 +407,7 @@ func hText(m *tb.Message) {
 
 <b>Доступно:</b> %.2f BIP
 <b>Коммиссия на вывод средств:</b> %.2f BIP
-<b>Минимальная сумма:</b> 20 BIP
+<b>Минимальная сумма:</b> 10 BIP
 <b>Максимальная сумма:</b> %.2f BIP`
 
 			B.Send(m.Sender, fmt.Sprintf(message, bipBalance, minGasPriceF*0.01, max), ReplyOut)
@@ -439,7 +476,10 @@ func GetText(fileName string) string {
 func hBetNum(c *tb.Callback) {
 	B.Respond(c)
 	var betNum float64
+	var betNumHaliava int
 	var betka string
+
+	var supers string
 
 	betSnailName := GetBetSnailName(c.Sender.ID)
 
@@ -451,17 +491,45 @@ func hBetNum(c *tb.Callback) {
 		betNum = 50
 	} else if c.Data == "100" {
 		betNum = 100
-	}
-
-	address, key := GetWallet(c.Sender.ID)
-	result, err := SendCoin(betNum-float64(0.01), address, appWallet, key)
-	if err != nil {
-		fmt.Println("Ошибка отправки транзакции", err)
-		B.Send(c.Sender, "🤯 Не хватает средств? Загляни в раздел <b>💰 Кошелёк</b>", tb.ModeHTML)
+	} else if c.Data == "haliava" {
+		B.EditReplyMarkup(c.Message, InlineBetNumHaliava.ReplyMarkup)
 		return
+	} else if c.Data == "monety" {
+		B.EditReplyMarkup(c.Message, InlineBetNum.ReplyMarkup)
+		return
+	} else if c.Data == "1h" {
+		betNumHaliava = 1
+	} else if c.Data == "5h" {
+		betNumHaliava = 5
+	} else if c.Data == "10h" {
+		betNumHaliava = 10
+	} else if c.Data == "50h" {
+		betNumHaliava = 50
 	}
 
-	hash := strings.ToLower(result.Hash)
+	if betNum > 0 {
+		address, key := GetWallet(c.Sender.ID)
+		result, err := SendCoin(betNum-float64(0.01), address, appWallet, key)
+		if err != nil {
+			fmt.Println("Ошибка отправки транзакции", err)
+			B.Send(c.Sender, "🤯 Не хватает средств? Загляни в раздел <b>💰 Кошелёк</b>", tb.ModeHTML)
+			return
+		}
+		supers = result.Hash
+
+	} else if betNumHaliava > 0 {
+		if GetHaliava(c.Sender.ID) >= betNumHaliava {
+			haliavaChange(c.Sender.ID, -1*betNumHaliava)
+
+			r := rand.New(rand.NewSource(time.Now().UnixNano()))
+			supers = "x0haliava" + strconv.Itoa(Random(r, 1, 100000000000)) + "end"
+		} else {
+			B.Send(c.Sender, "🤯 Нужна халява? Загляни в раздел <b>💰 Кошелёк</b>", tb.ModeHTML)
+			return
+		}
+	}
+
+	hash := strings.ToLower(supers)
 
 	SetBotState(c.Sender.ID, "race")
 	fmt.Println("Ставка "+c.Data+" BIP ", hash)
@@ -541,14 +609,24 @@ func hBetNum(c *tb.Callback) {
 	B.Send(c.Sender, "<code>Mt"+hash+"</code>", inlineCheck)
 
 	if win == betSnailName {
+		var title string
+		var betNumWin float64
+		if betNum > 0 {
+			betNumWin = betNum
+		} else if betNumHaliava > 0 {
+			betNumWin = float64(betNumHaliava) * 5
+		}
+
 		address, _ := GetWallet(c.Sender.ID)
-		result, err := SendCoin(betNum*2, appWallet, address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
+		result, err := SendCoin(betNumWin*2, appWallet, address, GetPrivateKeyFromMnemonic(os.Getenv("MNEMONIC")))
+
 		if err != nil {
 			fmt.Println("Ошибка отправки транзакции", err)
 			B.Send(c.Sender, "🤯 ЭТОГО НЕ ДОЛЖНО БЫЛО СЛУЧИТСЯ! ВЫИГРЫШ НЕ ОТПРАВИЛСЯ!!!", ReplyMain)
 		}
 		fmt.Println(result)
-		title := fmt.Sprintf("Твоя улитка победила! Выигрыш - %.0f BIP!", betNum*2)
+
+		title = fmt.Sprintf("Твоя улитка победила! Выигрыш - %.0f BIP!", betNumWin*2)
 
 		message := fmt.Sprintf(messageRace, title,
 			betka,
@@ -572,7 +650,7 @@ func hBetNum(c *tb.Callback) {
 			snails[1].GetString(),
 			snails[2].GetString(),
 		)
-		_, err = B.Edit(c.Message, message, tb.ModeHTML)
+		_, err := B.Edit(c.Message, message, tb.ModeHTML)
 		fmt.Println(err)
 		B.Send(c.Sender, "Эхх, неудача! <b>Попробуй ещё раз!</b>", tb.ModeHTML)
 	}
@@ -632,6 +710,8 @@ type Player struct {
 	OutAddress      string
 	BetSnailName    string
 	LastRaceMessage *tb.Message
+
+	Haliava int
 }
 
 func NewDefaultPlayer(id int) (Player, bool) {
@@ -666,6 +746,26 @@ func doLose(id int) {
 	p.LoseCount++
 
 	db.Model(p).Set("lose_count = ?", p.LoseCount).Where("id = ?", p.ID).Update()
+}
+
+func haliavaChange(id int, change int) {
+	p := &Player{}
+	p.ID = id
+	p.Haliava = GetHaliava(id)
+	p.Haliava += change
+
+	db.Model(p).Set("haliava = ?", p.Haliava).Where("id = ?", p.ID).Update()
+}
+
+func GetHaliava(id int) int {
+	p := &Player{}
+	p.ID = id
+	err := db.Select(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return p.Haliava
 }
 
 func GetRate(id int) (int, int) {
