@@ -485,7 +485,7 @@ func hBetNum(c *tb.Callback) {
 	betSnailName := GetBetSnailName(c.Sender.ID)
 
 	if c.Data[0] == 12 {
-		jjj = c.Data[7:]
+		jjj = c.Data[8:]
 	} else {
 		jjj = c.Data
 	}
