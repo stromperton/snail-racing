@@ -480,16 +480,10 @@ func hBetNum(c *tb.Callback) {
 	var betka string
 
 	var supers string
-	var jjj string
 
 	betSnailName := GetBetSnailName(c.Sender.ID)
 
-	if c.Data[0] == 12 {
-		jjj = c.Data[8:]
-	} else {
-		jjj = c.Data
-	}
-	switch jjj {
+	switch c.Data {
 	case "10":
 		betNum = 10
 	case "25":
@@ -499,10 +493,10 @@ func hBetNum(c *tb.Callback) {
 	case "100":
 		betNum = 100
 	case "haliava":
-		B.EditReplyMarkup(c.Message, InlineBetNumHaliava.ReplyMarkup)
+		B.Edit(c.Message, "", InlineBetNumHaliava)
 		return
 	case "monety":
-		B.EditReplyMarkup(c.Message, InlineBetNum.ReplyMarkup)
+		B.Edit(c.Message, "", InlineBetNum)
 		return
 	case "1h":
 		betNumHaliava = 1
@@ -513,7 +507,7 @@ func hBetNum(c *tb.Callback) {
 	case "50h":
 		betNumHaliava = 50
 	default:
-		B.Send(c.Sender, "🤯 Что-то пошло не так "+c.Data+" "+jjj, tb.ModeHTML)
+		B.Send(c.Sender, "🤯 Что-то пошло не так ", tb.ModeHTML)
 		return
 	}
 
