@@ -506,7 +506,7 @@ func hBetNum(c *tb.Callback) {
 	} else if c.Data == "50h" {
 		betNumHaliava = 50
 	} else {
-		B.Send(c.Sender, "🤯 Что-то пошло не так", tb.ModeHTML)
+		B.Send(c.Sender, "🤯 Что-то пошло не так "+c.Data, tb.ModeHTML)
 		return
 	}
 
