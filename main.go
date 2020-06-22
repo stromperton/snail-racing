@@ -480,12 +480,16 @@ func hBetNum(c *tb.Callback) {
 	var betka string
 
 	var supers string
+	var jjj string
 
 	betSnailName := GetBetSnailName(c.Sender.ID)
 
-	B.Send(c.Sender, c.Data, tb.ModeHTML)
-
-	switch c.Data {
+	if c.Data[0] == 'B' {
+		jjj = c.Data[6:]
+	} else {
+		jjj = c.Data
+	}
+	switch jjj {
 	case "10":
 		betNum = 10
 	case "25":
