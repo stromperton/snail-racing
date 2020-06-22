@@ -496,8 +496,10 @@ func hBetNum(c *tb.Callback) {
 		betNum = 100
 	case "haliava":
 		B.EditReplyMarkup(c.Message, InlineBetNumHaliava.ReplyMarkup)
+		return
 	case "monety":
 		B.EditReplyMarkup(c.Message, InlineBetNum.ReplyMarkup)
+		return
 	case "1h":
 		betNumHaliava = 1
 	case "5h":
@@ -508,6 +510,7 @@ func hBetNum(c *tb.Callback) {
 		betNumHaliava = 50
 	default:
 		B.Send(c.Sender, "🤯 Что-то пошло не так "+c.Data, tb.ModeHTML)
+		return
 	}
 
 	if betNum > 0 {
