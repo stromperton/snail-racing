@@ -485,7 +485,7 @@ func hBetNum(c *tb.Callback) {
 	betSnailName := GetBetSnailName(c.Sender.ID)
 
 	if c.Data[0] == 'B' {
-		jjj = c.Data[6:]
+		jjj = c.Data[7:]
 	} else {
 		jjj = c.Data
 	}
@@ -513,7 +513,7 @@ func hBetNum(c *tb.Callback) {
 	case "50h":
 		betNumHaliava = 50
 	default:
-		B.Send(c.Sender, "🤯 Что-то пошло не так "+c.Data, tb.ModeHTML)
+		B.Send(c.Sender, "🤯 Что-то пошло не так "+c.Data+" "+jjj, tb.ModeHTML)
 		return
 	}
 
