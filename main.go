@@ -198,11 +198,77 @@ func main() {
 
 func hMonety(c *tb.Callback) {
 	B.Respond(c)
-	B.EditReplyMarkup(c.Message, InlineBetNum.ReplyMarkup)
+
+	var betka string
+	betSnailName := GetBetSnailName(c.Sender.ID)
+
+	snails := [3]Snail{
+		{Adka: 0, Base: "_________________________🍭", Name: "gary"},
+		{Adka: 0, Base: "_________________________🍓", Name: "bonya"},
+		{Adka: 0, Base: "_________________________🍏", Name: "vasya"},
+	}
+
+	if betSnailName == snails[0].Name {
+		betka = "Ставка: 🐌 <b>Гери</b> 🍭"
+	}
+	if betSnailName == snails[1].Name {
+		betka = "Ставка: 🐌 <b>Боня</b> 🍓"
+	}
+	if betSnailName == snails[2].Name {
+		betka = "Ставка: 🐌 <b>Вася</b> 🍏"
+	}
+
+	address, _ := GetWallet(c.Sender.ID)
+	bipBalance := GetBalance(address)
+	hal := GetHaliava(c.Sender.ID)
+
+	message := fmt.Sprintf(messageRace, "💰 Ожидание ставки...", fmt.Sprintf(`
+	Баланс: <b>%.2f BIP</b>
+	Халява: <b>%d</b> 🤑
+	`+betka+`
+	Выигрыш = <b>Размер ставки × 2</b>`, bipBalance, hal),
+		snails[0].GetString(),
+		snails[1].GetString(),
+		snails[2].GetString(),
+	)
+	B.Edit(c.Message, message, InlineBetNum)
 }
 func hHaliava(c *tb.Callback) {
 	B.Respond(c)
-	B.EditReplyMarkup(c.Message, InlineBetNumHaliava.ReplyMarkup)
+
+	var betka string
+	betSnailName := GetBetSnailName(c.Sender.ID)
+
+	snails := [3]Snail{
+		{Adka: 0, Base: "_________________________🍭", Name: "gary"},
+		{Adka: 0, Base: "_________________________🍓", Name: "bonya"},
+		{Adka: 0, Base: "_________________________🍏", Name: "vasya"},
+	}
+
+	if betSnailName == snails[0].Name {
+		betka = "Ставка: 🐌 <b>Гери</b> 🍭"
+	}
+	if betSnailName == snails[1].Name {
+		betka = "Ставка: 🐌 <b>Боня</b> 🍓"
+	}
+	if betSnailName == snails[2].Name {
+		betka = "Ставка: 🐌 <b>Вася</b> 🍏"
+	}
+
+	address, _ := GetWallet(c.Sender.ID)
+	bipBalance := GetBalance(address)
+	hal := GetHaliava(c.Sender.ID)
+
+	message := fmt.Sprintf(messageRace, "💰 Ожидание ставки...", fmt.Sprintf(`
+	Баланс: <b>%.2f BIP</b>
+	Халява: <b>%d</b> 🤑
+	`+betka+`
+	Выигрыш = <b>Халява × 10 BIP</b>`, bipBalance, hal),
+		snails[0].GetString(),
+		snails[1].GetString(),
+		snails[2].GetString(),
+	)
+	B.Edit(c.Message, message, InlineBetNumHaliava)
 }
 
 func hMoneyIn(c *tb.Callback) {
@@ -710,7 +776,7 @@ func hBet(c *tb.Callback, betSnailName string) {
 
 	message := fmt.Sprintf(messageRace, "💰 Ожидание ставки...", fmt.Sprintf(`
 	Баланс: <b>%.2f BIP</b>
-	Халява: <b>%d</b> 
+	Халява: <b>%d</b> 🤑
 	`+betka+`
 	Выигрыш = <b>Размер ставки × 2</b>`, bipBalance, hal),
 		snails[0].GetString(),
