@@ -230,23 +230,29 @@ func hMoneyOut(c *tb.Callback) {
 func hMoneyGive(c *tb.Callback) {
 	B.Respond(c)
 
-	B.Send(c.Sender, `<b>Хочешь получить халяву?</b>
-<i>Расскажи о боте друзьям!</i>
-	
-<b>За каждую ставку</b> твоих друзей ты получишь <b>один халявный заезд</b>
-с возможностью выиграть <b>10 BIP</b>
+	B.Send(c.Sender, fmt.Sprintf(`<b>Хочешь получить халяву?</b>
+	<i>Расскажи о боте друзьям!</i>
 
-<b>Например</b>
-По ссылке Саши в бота зашли 10 человек. Предположим, что все они не сильно азартны и каждый сыграл всего по 3 раза.
-Итого Саша получает <b>30 бесплатных</b> билетов. Если играть на них, то, согласно теории вероятности, сумма выигрышей составит примерно <code>30 * 1/3 * 10 = </code><b>100 BIP<b>
-Таким образом Саша получает по <b>10 BIP с каждого</b> привлеченного игрока`, tb.ModeHTML)
+	Твоя пригласительная ссылка:
+	https://t.me/SnailRacingBot?start=%d
+		
+	<b>За каждую ставку</b> твоих друзей ты получишь <b>один халявный заезд</b>
+	с возможностью выиграть <b>10 BIP</b>
+	
+	<b>Например</b>
+	По ссылке Саши в бота зашли 10 человек. Предположим, что все они не сильно азартны и каждый сыграл всего по 3 раза.
+	Итого Саша получает <b>30 бесплатных</b> билетов. Если играть на них, то, согласно теории вероятности, сумма выигрышей составит примерно <code>30 * 1/3 * 10 = </code><b>100 BIP</b>
+	Таким образом Саша получает по <b>10 BIP с каждого</b> привлеченного игрока`, c.Sender.ID), tb.ModeHTML)
 }
 
 func hStart(m *tb.Message) {
 	if !m.Private() {
 		return
 	}
-	p, isNewPlayer := NewDefaultPlayer(m.Sender.ID)
+	ref, err := strconv.Atoi(m.Payload)
+	fmt.Println(ref, err)
+
+	p, isNewPlayer := NewDefaultPlayer(m.Sender.ID, ref)
 
 	if isNewPlayer {
 		fmt.Printf("Новый игрок: @%s[%d]\n", m.Sender.Username, p.ID)
@@ -540,6 +546,11 @@ func hBetNum(c *tb.Callback) {
 		}
 	}
 
+	ref := GetRef(c.Sender.ID)
+	haliavaChange(ref, 1)
+	B.Send(&tb.Chat{ID: int64(ref)}, `Один из приглашенных тобой игроков - сделал ставку!
+	<b>Забирай свою 🤯 Халяву</b>`)
+
 	hash := strings.ToLower(supers)
 
 	SetBotState(c.Sender.ID, "race")
@@ -715,6 +726,7 @@ func hSnails(c *tb.Callback, snailName string) {
 
 type Player struct {
 	ID              int
+	Ref             int
 	Address         string
 	PrivateKey      string
 	WinCount        int `pg:"win_count,use_zero,notnull"`
@@ -727,9 +739,10 @@ type Player struct {
 	Haliava int `pg:"haliava,use_zero,notnull"`
 }
 
-func NewDefaultPlayer(id int) (Player, bool) {
+func NewDefaultPlayer(id int, ref int) (Player, bool) {
 	p := &Player{}
 	p.ID = id
+	p.Ref = ref
 	p.Address, p.PrivateKey = CreateWallet()
 	p.BotState = "default"
 
@@ -779,6 +792,17 @@ func GetHaliava(id int) int {
 	}
 
 	return p.Haliava
+}
+
+func GetRef(id int) int {
+	p := &Player{}
+	p.ID = id
+	err := db.Select(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return p.Ref
 }
 
 func GetRate(id int) (int, int) {
