@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/go-pg/pg/v9"
-	"golang.org/x/crypto/sha3"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
@@ -547,7 +546,7 @@ func hBetNum(c *tb.Callback) {
 			haliavaChange(c.Sender.ID, -1*betNumHaliava)
 
 			r := rand.New(rand.NewSource(time.Now().UnixNano()))
-			supers = "x0haliava" + strconv.Itoa(Random(r, 1, 100000000000)) + "end"
+			supers = strconv.Itoa(Random(r, 1, 10000000)) + "haliava"
 		} else {
 			B.Send(c.Sender, "🤯 Нужна халява? Загляни в раздел <b>💰 Кошелёк</b>", tb.ModeHTML)
 			return
@@ -559,8 +558,7 @@ func hBetNum(c *tb.Callback) {
 	SetBotState(c.Sender.ID, "race")
 	fmt.Println("Ставка "+c.Data+" BIP ", hash)
 
-	h := sha3.NewLegacyKeccak256()
-	seed := int64(binary.BigEndian.Uint64(h.Sum([]byte(hash))))
+	seed := int64(binary.BigEndian.Uint64([]byte(hash)))
 	myR := rand.New(rand.NewSource(seed))
 
 	snails := [3]Snail{
@@ -625,7 +623,7 @@ func hBetNum(c *tb.Callback) {
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "Проверка заезда", URL: "https://play.golang.org/p/Sc5JMnGFnIv"},
+					tb.InlineButton{Text: "Проверка заезда", URL: "https://play.golang.org/p/q1tS3iWMTBW"},
 				},
 			},
 		},
