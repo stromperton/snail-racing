@@ -243,7 +243,7 @@ https://t.me/SnailRacingBot?start=%d
 
 Итого Саша получает <b>30 бесплатных</b> билетов. Если играть на них, то, согласно теории вероятности, сумма выигрышей составит примерно <code>30 * 1/3 * 10 = </code><b>100 BIP</b>
 
-Таким образом Саша получает по <b>10 BIP с каждого</b> привлеченного игрока`, c.Sender.ID), tb.ModeHTML)
+Таким образом Саша получает по <b>10 BIP с каждого</b> привлеченного игрока`, c.Sender.ID), &tb.SendOptions{DisableWebPagePreview: true, ParseMode: tb.ModeHTML})
 }
 
 func hStart(m *tb.Message) {
@@ -535,6 +535,12 @@ func hBetNum(c *tb.Callback) {
 		}
 		supers = result.Hash
 
+		ref := GetRef(c.Sender.ID)
+		haliavaChange(ref, 1)
+
+		B.Send(&tb.Chat{ID: int64(ref)}, `Один из приглашенных тобой игроков - <a href='https://explorer.minter.network/Mt`+supers+`'> сделал ставку</a>!
+<b>Забирай свою 🤯 Халяву</b>`, &tb.SendOptions{DisableWebPagePreview: true, ParseMode: tb.ModeHTML})
+
 	} else if betNumHaliava > 0 {
 		if GetHaliava(c.Sender.ID) >= betNumHaliava {
 			haliavaChange(c.Sender.ID, -1*betNumHaliava)
@@ -546,12 +552,6 @@ func hBetNum(c *tb.Callback) {
 			return
 		}
 	}
-
-	ref := GetRef(c.Sender.ID)
-	haliavaChange(ref, 1)
-
-	B.Send(&tb.Chat{ID: int64(ref)}, `Один из приглашенных тобой игроков - сделал ставку!
-<b>Забирай свою 🤯 Халяву</b>`)
 
 	hash := strings.ToLower(supers)
 
