@@ -522,6 +522,7 @@ func hBetNum(c *tb.Callback) {
 		betNumHaliava = 50
 	default:
 		B.Send(c.Sender, "🤯 Что-то пошло не так ", tb.ModeHTML)
+		fmt.Println("INVALID DATA", c.Data)
 		return
 	}
 
@@ -539,7 +540,7 @@ func hBetNum(c *tb.Callback) {
 		haliavaChange(ref, 1)
 
 		B.Send(&tb.Chat{ID: int64(ref)}, `Один из приглашенных тобой игроков - <a href='https://explorer.minter.network/Mt`+supers+`'> сделал ставку</a>!
-<b>Забирай свою 🤯 Халяву</b>`, &tb.SendOptions{DisableWebPagePreview: true, ParseMode: tb.ModeHTML})
+<b>Забирай свою 🤑 Халяву</b>`, &tb.SendOptions{DisableWebPagePreview: true, ParseMode: tb.ModeHTML})
 
 	} else if betNumHaliava > 0 {
 		if GetHaliava(c.Sender.ID) >= betNumHaliava {
