@@ -604,7 +604,7 @@ func hBetNum(c *tb.Callback) {
 		ref := GetRef(c.Sender.ID)
 		haliavaChange(ref, 1)
 
-		B.Send(&tb.Chat{ID: int64(ref)}, `Один из приглашенных тобой игроков - <a href='https://explorer.minter.network/Mt`+supers+`'> сделал ставку</a>!
+		B.Send(&tb.Chat{ID: int64(ref)}, `Один из приглашенных тобой игроков - <a href='https://explorer.minter.network/transactions/Mt`+supers+`'> сделал ставку</a>!
 <b>Забирай свою 🤑 Халяву</b>`, &tb.SendOptions{DisableWebPagePreview: true, ParseMode: tb.ModeHTML})
 
 	} else if betNumHaliava > 0 {
