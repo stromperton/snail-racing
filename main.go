@@ -366,13 +366,13 @@ func hStat(m *tb.Message) {
 	gamers := 0
 	for _, v := range players {
 		games += v.LoseCount + v.WinCount
-		if v.LoseCount != 0 && v.WinCount != 0 {
+		if v.LoseCount != 0 || v.WinCount != 0 {
 			gamers++
 		}
 	}
 
-	gperp := games / users
-	gperg := games / gamers
+	gperp := float64(games) / float64(users)
+	gperg := float64(games) / float64(gamers)
 
 	profit := GetBalance(appWallet) - 2700
 	profitperuser := profit / float64(users)
