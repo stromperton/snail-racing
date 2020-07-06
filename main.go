@@ -171,6 +171,7 @@ func main() {
 	}
 
 	B.Handle("/start", hStart)
+	B.Handle("/stat", hStat)
 	B.Handle("/sender", hSender)
 	B.Handle(tb.OnText, hText)
 	B.Handle("\fGary", func(c *tb.Callback) { hSnails(c, "gary") })
@@ -331,7 +332,7 @@ func hStart(m *tb.Message) {
 }
 
 func hSender(m *tb.Message) {
-	if !m.Private() || m.Sender.ID != 303629013 || !m.IsReply() {
+	if !m.Private() || (m.Sender.ID != 303629013 && m.Sender.ID != 525462244) || !m.IsReply() {
 		return
 	}
 
@@ -346,6 +347,38 @@ func hSender(m *tb.Message) {
 		B.Send(&tb.Chat{ID: int64(v.ID)}, m.ReplyTo.Text, tb.ModeHTML)
 	}
 
+}
+
+func hStat(m *tb.Message) {
+	if !m.Private() || (m.Sender.ID != 303629013 && m.Sender.ID != 525462244) {
+		return
+	}
+
+	var players []Player
+	err := db.Model(&players).Select()
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	users := len(players)
+	games := 0
+	gamers := 0
+	for _, v := range players {
+		games += v.LoseCount + v.WinCount
+		if v.LoseCount != 0 && v.WinCount != 0 {
+			gamers++
+		}
+	}
+
+	gperp := games / users
+	gperg := games / gamers
+
+	profit := GetBalance(appWallet) - 2700
+	profitperuser := profit / float64(users)
+	profitpergame := profit / float64(games)
+
+	B.Send(m.Sender, fmt.Sprintf(GetText("stat"), users, games, gperp, gamers, gperg, profit, profitperuser, profitpergame), tb.ModeHTML)
 }
 
 /*
