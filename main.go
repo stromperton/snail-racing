@@ -90,6 +90,9 @@ var (
 					tb.InlineButton{Text: "100 BIP", Unique: "BetNum", Data: "100"},
 				},
 				{
+					tb.InlineButton{Text: "250 BIP", Unique: "BetNum", Data: "250"},
+				},
+				{
 					tb.InlineButton{Text: "🤑 Халява", Unique: "Haliava"},
 				},
 			},
@@ -610,6 +613,8 @@ func hBetNum(c *tb.Callback) {
 		betNum = 50
 	case "100":
 		betNum = 100
+	case "250":
+		betNum = 250
 	case "1h":
 		betNumHaliava = 1
 	case "5h":
