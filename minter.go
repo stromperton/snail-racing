@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	nodeUrl = "https://mnt.funfasy.dev/v0/"
+	nodeUrl = "https://mnt.funfasy.dev/"
 	restyC  = resty.New().SetHeaders(map[string]string{
 		"Content-Type":     "application/json",
 		"X-Project-Id":     os.Getenv("FUNFASY_ID"),
