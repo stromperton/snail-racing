@@ -82,15 +82,12 @@ var (
 		ReplyMarkup: &tb.ReplyMarkup{
 			InlineKeyboard: [][]tb.InlineButton{
 				{
-					tb.InlineButton{Text: "10 BIP", Unique: "BetNum", Data: "10"},
-					tb.InlineButton{Text: "25 BIP", Unique: "BetNum", Data: "25"},
-				},
-				{
 					tb.InlineButton{Text: "50 BIP", Unique: "BetNum", Data: "50"},
 					tb.InlineButton{Text: "100 BIP", Unique: "BetNum", Data: "100"},
 				},
 				{
 					tb.InlineButton{Text: "250 BIP", Unique: "BetNum", Data: "250"},
+					tb.InlineButton{Text: "500 BIP", Unique: "BetNum", Data: "500"},
 				},
 				{
 					tb.InlineButton{Text: "🤑 Халява", Unique: "Haliava"},
@@ -267,7 +264,7 @@ func hHaliava(c *tb.Callback) {
 	Баланс: <b>%.2f BIP</b>
 	Халява: <b>%d</b> 🤑
 	`+betka+`
-	Выигрыш = <b>Халява × 10 BIP</b>`, bipBalance, hal),
+	Выигрыш = <b>Халява × 100 BIP</b>`, bipBalance, hal),
 		snails[0].GetString(),
 		snails[1].GetString(),
 		snails[2].GetString(),
@@ -305,14 +302,14 @@ func hMoneyGive(c *tb.Callback) {
 Твоя пригласительная ссылка:
 https://t.me/SnailRacingBot?start=%d
 		
-<b>За каждую ставку</b> твоих друзей ты получишь <b>один халявный заезд</b> с возможностью выиграть <b>10 BIP</b>
+<b>За каждую ставку</b> твоих друзей ты получишь <b>один халявный заезд</b> с возможностью выиграть <b>50 BIP</b>
 	
 <b>Например</b>
 По ссылке Саши в бота зашли 10 человек. Предположим, что все они не сильно азартны и каждый сыграл всего по 3 раза.
 
-Итого Саша получает <b>30 бесплатных</b> билетов. Если играть на них, то, согласно теории вероятности, сумма выигрышей составит примерно <code>30 * 1/3 * 10 = </code><b>100 BIP</b>
+Итого Саша получает <b>30 бесплатных</b> билетов. Если играть на них, то, согласно теории вероятности, сумма выигрышей составит примерно <code>30 * 1/3 * 50 = </code><b>500 BIP</b>
 
-Таким образом Саша получает по <b>10 BIP с каждого</b> привлеченного игрока`, c.Sender.ID), &tb.SendOptions{DisableWebPagePreview: true, ParseMode: tb.ModeHTML})
+Таким образом Саша получает по <b>50 BIP с каждого</b> привлеченного игрока`, c.Sender.ID), &tb.SendOptions{DisableWebPagePreview: true, ParseMode: tb.ModeHTML})
 }
 
 func hStart(m *tb.Message) {
@@ -604,16 +601,14 @@ func hBetNum(c *tb.Callback) {
 	betSnailName := GetBetSnailName(c.Sender.ID)
 
 	switch c.Data {
-	case "10":
-		betNum = 10
-	case "25":
-		betNum = 25
 	case "50":
 		betNum = 50
 	case "100":
 		betNum = 100
 	case "250":
 		betNum = 250
+	case "500":
+		betNum = 500
 	case "1h":
 		betNumHaliava = 1
 	case "5h":
@@ -740,7 +735,7 @@ func hBetNum(c *tb.Callback) {
 		if betNum > 0 {
 			betNumWin = betNum
 		} else if betNumHaliava > 0 {
-			betNumWin = float64(betNumHaliava) * 5
+			betNumWin = float64(betNumHaliava) * 25
 		}
 
 		address, _ := GetWallet(c.Sender.ID)
