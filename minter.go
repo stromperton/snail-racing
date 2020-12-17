@@ -5,61 +5,58 @@ import (
 	"io/ioutil"
 	"math/big"
 	"net/http"
-	"os"
 	"strconv"
 
-	"github.com/MinterTeam/minter-go-sdk/api"
-	"github.com/MinterTeam/minter-go-sdk/transaction"
-	"github.com/MinterTeam/minter-go-sdk/wallet"
+	"github.com/MinterTeam/minter-go-sdk/v2/api/http_client"
+	"github.com/MinterTeam/minter-go-sdk/v2/api/http_client/models"
+	"github.com/MinterTeam/minter-go-sdk/v2/transaction"
+	"github.com/MinterTeam/minter-go-sdk/v2/wallet"
 	"github.com/buger/jsonparser"
-	"github.com/go-resty/resty/v2"
 )
 
 var (
-	nodeUrl = "https://mnt.funfasy.dev/v0/"
-	restyC  = resty.New().SetHeaders(map[string]string{
-		"Content-Type":     "application/json",
-		"X-Project-Id":     os.Getenv("FUNFASY_ID"),
-		"X-Project-Secret": os.Getenv("FUNFASY_SECRET"),
-	})
-
-	minterClient = api.NewApiWithClient(nodeUrl, restyC)
+	nodeUrl         = "https://api.minter.one/v2"
+	testnodeUrl     = "https://node-api.testnet.minter.network/v2"
+	minterClient, _ = http_client.NewConcise(nodeUrl)
 )
 
-func SendCoin(flyt float64, fromAddress string, address string, privateKey string) (*api.SendTransactionResult, error) {
+func SendCoin(flyt float64, fromAddress string, address string, privateKey string) (*models.SendTransactionResponse, error) {
+
+	minGasPrice, _ := minterClient.MinGasPrice()
+	gasPrice := minGasPrice.MinGasPrice
+	nonce, _ := minterClient.Nonce(fromAddress)
 
 	value, ok := new(big.Int).SetString(fmt.Sprintf("%.0f", flyt*1000000000000000000), 10)
 	if !ok {
 		fmt.Println("SetString: error")
 		return nil, nil
 	}
-	data, _ := transaction.NewSendData().SetCoin("BIP").SetValue(value).SetTo(address)
-	minGasPrice, _ := minterClient.MinGasPrice()
-	gasPrice, _ := strconv.ParseUint(minGasPrice, 10, 8)
-	nonce, _ := minterClient.Nonce(fromAddress)
 
-	tx, _ := transaction.NewBuilder(transaction.MainNetChainID).NewTransaction(data)
-	tx.SetNonce(nonce).SetGasPrice(uint8(gasPrice)).SetGasCoin("BIP")
-	signedTx, _ := tx.Sign(privateKey)
-	result, err := minterClient.SendTransaction(signedTx)
+	data, _ := transaction.NewSendData().SetCoin(0).SetValue(value).SetTo(address)
+	transactionsBuilder := transaction.NewBuilder(transaction.MainNetChainID)
+	tx, _ := transactionsBuilder.NewTransaction(data)
+	sign, err := tx.SetNonce(nonce).SetGasPrice(uint8(gasPrice)).Sign(privateKey)
+	encode, _ := sign.Encode()
 
-	return result, err
+	res, _ := minterClient.SendTransaction(encode)
+
+	return res, err
 }
 
 func GetBalance(address string) float64 {
 
-	response, err := minterClient.Balance(address)
+	response, err := minterClient.Address(address)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	num, err := strconv.ParseFloat(response["BIP"], 64)
+	num, err := strconv.ParseFloat(response.BipValue, 64)
 	return num / 1000000000000000000
 }
 
 func CreateWallet() (string, string) {
-	walletData, _ := wallet.Create()
+	walletData, _ := wallet.New()
 	return walletData.Address, walletData.PrivateKey
 }
 

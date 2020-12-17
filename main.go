@@ -148,7 +148,6 @@ var (
 )
 
 func main() {
-
 	var (
 		port      = os.Getenv("PORT")
 		publicURL = os.Getenv("PUBLIC_URL")
@@ -198,6 +197,7 @@ func main() {
 	defer db.Close()
 
 	B.Start()
+
 }
 
 func hMonety(c *tb.Callback) {
@@ -477,7 +477,7 @@ func hText(m *tb.Message) {
 			adress, prKey := GetWallet(m.Sender.ID)
 			outAdress := GetOutAddress(m.Sender.ID)
 			minGasPrice, _ := minterClient.MinGasPrice()
-			minGasPriceF, _ := strconv.ParseFloat(minGasPrice, 64)
+			minGasPriceF := float64(minGasPrice.MinGasPrice)
 			num := GetBalance(adress) - minGasPriceF*0.01
 			_, err := SendCoin(num, adress, outAdress, prKey)
 
@@ -515,9 +515,8 @@ func hText(m *tb.Message) {
 			address, _ := GetWallet(m.Sender.ID)
 			bipBalance := GetBalance(address)
 
-			minterClient.MaxGas()
 			minGasPrice, _ := minterClient.MinGasPrice()
-			minGasPriceF, _ := strconv.ParseFloat(minGasPrice, 64)
+			minGasPriceF := float64(minGasPrice.MinGasPrice)
 
 			max := bipBalance - minGasPriceF*0.01
 
