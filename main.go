@@ -335,7 +335,7 @@ func hStart(m *tb.Message) {
 }
 
 func hSender(m *tb.Message) {
-	if !m.Private() || (m.Sender.ID != 303629013 && m.Sender.ID != 525462244) || !m.IsReply() {
+	if !m.Private() || (m.Sender.ID != 303629013) || !m.IsReply() {
 		return
 	}
 
@@ -353,7 +353,7 @@ func hSender(m *tb.Message) {
 }
 
 func hStat(m *tb.Message) {
-	if !m.Private() || (m.Sender.ID != 303629013 && m.Sender.ID != 525462244) {
+	if !m.Private() || (m.Sender.ID != 303629013) {
 		return
 	}
 

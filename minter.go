@@ -35,10 +35,10 @@ func SendCoin(flyt float64, fromAddress string, address string, privateKey strin
 	data, _ := transaction.NewSendData().SetCoin(0).SetValue(value).SetTo(address)
 	transactionsBuilder := transaction.NewBuilder(transaction.MainNetChainID)
 	tx, _ := transactionsBuilder.NewTransaction(data)
-	sign, err := tx.SetNonce(nonce).SetGasPrice(uint8(gasPrice)).Sign(privateKey)
+	sign, _ := tx.SetNonce(nonce).SetGasPrice(uint8(gasPrice)).Sign(privateKey)
 	encode, _ := sign.Encode()
 
-	res, _ := minterClient.SendTransaction(encode)
+	res, err := minterClient.SendTransaction(encode)
 
 	return res, err
 }
