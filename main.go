@@ -264,7 +264,7 @@ func hHaliava(c *tb.Callback) {
 	Баланс: <b>%.2f BIP</b>
 	Халява: <b>%d</b> 🤑
 	`+betka+`
-	Выигрыш = <b>Халява × 100 BIP</b>`, bipBalance, hal),
+	Выигрыш = <b>Халява × 50 BIP</b>`, bipBalance, hal),
 		snails[0].GetString(),
 		snails[1].GetString(),
 		snails[2].GetString(),
