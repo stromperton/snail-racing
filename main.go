@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/go-pg/pg/v9"
+	"github.com/zhuharev/qiwi"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
@@ -25,6 +26,7 @@ const (
 var (
 	appWallet   string
 	messageRace string
+	tokenQIWI   string
 )
 
 var B *tb.Bot
@@ -154,6 +156,7 @@ func main() {
 
 	appWallet = os.Getenv("APP_WALLET")
 	messageRace = GetText("race")
+	tokenQIWI = os.Getenv("QIWI_TOKEN")
 
 	poller := &tb.Webhook{
 		Listen:   ":" + port,
@@ -278,6 +281,9 @@ func hMoneyIn(c *tb.Callback) {
 
 	B.Send(c.Sender, "💰 Чтобы пополнить баланс, отправь BIP на этот адрес:")
 	B.Send(c.Sender, "<code>"+address+"</code>", ReplyMain)
+
+	qw := qiwi.New(tokenQIWI)
+	fmt.Println(qw.Balance)
 }
 func hMoneyOut(c *tb.Callback) {
 	B.Respond(c)
