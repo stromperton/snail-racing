@@ -21,6 +21,8 @@ const (
 	maxScore        = 200
 	winPos          = 26
 	changeSpeedProb = 1
+
+	AdminID = 303629013
 )
 
 var (
@@ -164,7 +166,7 @@ func main() {
 	}
 
 	middle := tb.NewMiddlewarePoller(poller, func(upd *tb.Update) bool {
-		if upd.Message.Sender.ID == 303629013 {
+		if upd.Message.Sender.ID == AdminID {
 			return true
 		} else {
 			B.Send(upd.Message.Sender, "Технические работы!")
@@ -347,7 +349,7 @@ func hStart(m *tb.Message) {
 }
 
 func hSender(m *tb.Message) {
-	if !m.Private() || (m.Sender.ID != 303629013) || !m.IsReply() {
+	if !m.Private() || (m.Sender.ID != AdminID) || !m.IsReply() {
 		return
 	}
 
@@ -365,7 +367,7 @@ func hSender(m *tb.Message) {
 }
 
 func hStat(m *tb.Message) {
-	if !m.Private() || (m.Sender.ID != 303629013) {
+	if !m.Private() || (m.Sender.ID != AdminID) {
 		return
 	}
 
@@ -379,8 +381,10 @@ func hStat(m *tb.Message) {
 	users := len(players)
 	games := 0
 	gamers := 0
+	ostatok := 0.0
 	for _, v := range players {
 		games += v.LoseCount + v.WinCount
+		ostatok += GetBalance(v.Address)
 		if v.LoseCount != 0 || v.WinCount != 0 {
 			gamers++
 		}
@@ -393,89 +397,8 @@ func hStat(m *tb.Message) {
 	profitperuser := profit / float64(users)
 	profitpergame := profit / float64(games)
 
-	B.Send(m.Sender, fmt.Sprintf(GetText("stat"), users, games, gperp, gamers, gperg, profit, profitperuser, profitpergame), tb.ModeHTML)
+	B.Send(m.Sender, fmt.Sprintf(GetText("stat"), users, games, gperp, gamers, gperg, profit, profitperuser, profitpergame, ostatok), tb.ModeHTML)
 }
-
-/*
-func hCheck(c *tb.Callback) {
-	B.Respond(c)
-
-	seed, _ := strconv.ParseInt(c.Data, 10, 64)
-	myR := rand.New(rand.NewSource(seed))
-
-	snails := [3]Snail{
-		{Base: "_________________________🍭", Name: "gary"},
-		{Base: "_________________________🍓", Name: "bonya"},
-		{Base: "_________________________🍏", Name: "vasya"},
-	}
-
-	for i, _ := range snails {
-		snails[i].Adka = Random(myR, 1, 10)
-	}
-
-	win := "nil"
-	var winnersArray []string
-
-	mess := fmt.Sprintf(messageRace, "tt", "ff",
-		snails[0].GetString(),
-		snails[1].GetString(),
-		snails[2].GetString(),
-	)
-	B.Edit(c.Message, mess, tb.ModeHTML)
-	for win == "nil" {
-
-		isUpdateMessage := false
-		for i := 0; i < 3; i++ {
-			isUpdate, winner := snails[i].Hodik(myR)
-			if isUpdate {
-				isUpdateMessage = true
-			}
-			if winner {
-				winnersArray = append(winnersArray, snails[i].Name)
-			}
-		}
-
-		if len(winnersArray) > 0 {
-			winInd := Random(myR, 0, len(winnersArray))
-
-			for i, snailName := range winnersArray {
-				if i == winInd {
-					win = snailName
-				} else {
-					snails[i].Position--
-				}
-			}
-		}
-
-		if isUpdateMessage {
-			message := fmt.Sprintf(messageRace, "tt", "fsdfdf",
-				snails[0].GetString(),
-				snails[1].GetString(),
-				snails[2].GetString(),
-			)
-			B.Edit(c.Message, message, tb.ModeHTML)
-		}
-		time.Sleep(time.Millisecond * 10)
-
-	}
-	inlineCheck := &tb.SendOptions{
-		ParseMode:             tb.ModeHTML,
-		DisableWebPagePreview: true,
-		ReplyMarkup: &tb.ReplyMarkup{
-			InlineKeyboard: [][]tb.InlineButton{
-				{
-					tb.InlineButton{Text: "Проверка заезда", Data: strconv.FormatInt(seed, 10), Unique: "Check"},
-				},
-			},
-		},
-	}
-	message := fmt.Sprintf(messageRace, "tt", "fsdfdf",
-		snails[0].GetString(),
-		snails[1].GetString(),
-		snails[2].GetString(),
-	)
-	B.Edit(c.Message, message, inlineCheck)
-}*/
 
 func hText(m *tb.Message) {
 	if !m.Private() {
