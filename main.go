@@ -164,19 +164,19 @@ func main() {
 		Listen:   ":" + port,
 		Endpoint: &tb.WebhookEndpoint{PublicURL: publicURL},
 	}
-
-	middle := tb.NewMiddlewarePoller(poller, func(upd *tb.Update) bool {
-		if upd.Message.Sender.ID == AdminID {
-			return true
-		} else {
-			B.Send(upd.Message.Sender, "Технические работы!")
-		}
-		return false
-	})
-
+	/*
+		middle := tb.NewMiddlewarePoller(poller, func(upd *tb.Update) bool {
+			if upd.Message.Sender.ID == AdminID {
+				return true
+			} else {
+				B.Send(upd.Message.Sender, "Технические работы!")
+			}
+			return false
+		})
+	*/
 	B, err = tb.NewBot(tb.Settings{
 		Token:  token,
-		Poller: middle,
+		Poller: poller,
 	})
 
 	if err != nil {
