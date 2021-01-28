@@ -381,15 +381,16 @@ func hStat(m *tb.Message) {
 	users := len(players)
 	games := 0
 	gamers := 0
-	ostatok := 0.0
+	var massss []string
 	for _, v := range players {
 		games += v.LoseCount + v.WinCount
 		fmt.Println(v.Address)
-		ostatok += GetBalance(v.Address)
+		massss = append(massss, v.Address)
 		if v.LoseCount != 0 || v.WinCount != 0 {
 			gamers++
 		}
 	}
+	ostatok := GetBalancesss(massss)
 
 	gperp := float64(games) / float64(users)
 	gperg := float64(games) / float64(gamers)
