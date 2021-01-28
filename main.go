@@ -163,9 +163,18 @@ func main() {
 		Endpoint: &tb.WebhookEndpoint{PublicURL: publicURL},
 	}
 
+	middle := tb.NewMiddlewarePoller(poller, func(upd *tb.Update) bool {
+		if upd.Message.Sender.ID == 303629013 {
+			return true
+		} else {
+			B.Send(upd.Message.Sender, "Технические работы!")
+		}
+		return false
+	})
+
 	B, err = tb.NewBot(tb.Settings{
 		Token:  token,
-		Poller: poller,
+		Poller: middle,
 	})
 
 	if err != nil {
