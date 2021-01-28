@@ -52,24 +52,7 @@ func GetBalance(address string) float64 {
 	}
 
 	num, err := strconv.ParseFloat(response.BipValue, 64)
-	fmt.Println(num, err, response.BipValue)
 	return num / 1000000000000000000
-}
-
-func GetBalancesss(addresses []string) float64 {
-
-	response, err := minterClient.Addresses(addresses)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	ost := 0.0
-	for _, a := range response.Addresses {
-		num, _ := strconv.ParseFloat(a.BipValue, 64)
-		ost += num / 1000000000000000000
-	}
-
-	return ost
 }
 
 func CreateWallet() (string, string) {
