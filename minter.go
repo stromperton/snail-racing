@@ -52,6 +52,7 @@ func GetBalance(address string) float64 {
 	}
 
 	num, err := strconv.ParseFloat(response.BipValue, 64)
+	fmt.Println(num, err, response.BipValue)
 	return num / 1000000000000000000
 }
 
