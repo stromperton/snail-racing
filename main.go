@@ -384,8 +384,8 @@ func hStat(m *tb.Message) {
 	ostatok := 0.0
 	for _, v := range players {
 		games += v.LoseCount + v.WinCount
-		ostatok += GetBalance(v.Address)
 		fmt.Println(v.Address)
+		ostatok += GetBalance(v.Address)
 		if v.LoseCount != 0 || v.WinCount != 0 {
 			gamers++
 		}
